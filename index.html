@@ -85,12 +85,12 @@
       constructor(x, y) {
         this.x = x;
         this.y = y;
-        this.radius = Math.random() * 2 + 1;
+        this.radius = Math.random() * 2 + 1; // 增加烟花粒子的大小范围
         this.color = `hsl(${Math.random() * 360}, 100%, 70%)`;
-        this.vx = Math.random() * 6 - 3; // 速度限制，使得烟花更为分散
+        this.vx = Math.random() * 6 - 3; // 速度增加，效果更活跃
         this.vy = Math.random() * 6 - 3;
         this.alpha = 1;
-        this.decay = Math.random() * 0.01 + 0.01; // 更慢的衰退速度
+        this.decay = Math.random() * 0.01 + 0.01; // 慢衰减速度
       }
       update() {
         this.x += this.vx;
@@ -106,8 +106,10 @@
       }
     }
 
-    function createFireworks(x, y) {
-      const count = 150; // 每次生成150个粒子
+    function createFireworks() {
+      const x = Math.random() * canvas.width;
+      const y = Math.random() * canvas.height * 0.6;
+      const count = 300; // 增加每次生成的粒子数量
       for (let i = 0; i < count; i++) {
         fireworks.push(new Firework(x, y));
       }
@@ -124,13 +126,7 @@
     }
 
     function autoFireworks() {
-      setInterval(() => {
-        for (let i = 0; i < 3; i++) { // 同时生成多个烟花，减少密集感
-          const x = Math.random() * canvas.width;
-          const y = Math.random() * canvas.height * 0.6;
-          createFireworks(x, y);
-        }
-      }, 300); // 每300毫秒触发一次烟花效果，避免过于密集
+      setInterval(createFireworks, 300); // 每300毫秒生成一次烟花
     }
 
     animate();
