@@ -70,8 +70,8 @@
 </head>
 <body>
   <h1>目标达成！🎉</h1>
-  <div class="status">实际完成情况：3.1亿 | 完成率：115.2%</div> </br>
-  <div class="message">让我们一起庆祝这个伟大的时刻！</div> 
+  <div class="status">实际完成情况：3.1亿 | 完成率：115.2%</div> <!-- 交换后的顺序 -->
+  <div class="message">让我们一起庆祝这个伟大的时刻！</div> <!-- 交换后的顺序 -->
   <canvas id="fireworks"></canvas>
 
   <script>
@@ -87,8 +87,8 @@
         this.y = y;
         this.radius = Math.random() * 2 + 1;
         this.color = `hsl(${Math.random() * 360}, 100%, 70%)`;
-        this.vx = Math.random() * 8 - 4;
-        this.vy = Math.random() * 8 - 4;
+        this.vx = Math.random() * 6 - 3; // 速度限制，使得烟花更为分散
+        this.vy = Math.random() * 6 - 3;
         this.alpha = 1;
         this.decay = Math.random() * 0.02 + 0.02;
       }
@@ -107,7 +107,7 @@
     }
 
     function createFireworks(x, y) {
-      const count = 150; // 每次生成150个粒子，减少粒子数量
+      const count = 150; // 每次生成150个粒子
       for (let i = 0; i < count; i++) {
         fireworks.push(new Firework(x, y));
       }
@@ -125,12 +125,12 @@
 
     function autoFireworks() {
       setInterval(() => {
-        for (let i = 0; i < 3; i++) { // 同时生成较少数量的烟花
+        for (let i = 0; i < 5; i++) { // 同时生成多个烟花
           const x = Math.random() * canvas.width;
           const y = Math.random() * canvas.height * 0.6;
           createFireworks(x, y);
         }
-      }, 200); // 每200毫秒触发一次
+      }, 500); // 每500毫秒触发一次烟花效果
     }
 
     animate();
