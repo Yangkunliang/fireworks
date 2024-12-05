@@ -14,7 +14,7 @@
             color: #fff;
             display: flex;
             justify-content: center;
-            align-items: flex-end; /* 使蛋糕贴近底部 */
+            align-items: flex-start;
             flex-direction: column;
             height: 100vh;
             text-align: center;
@@ -23,10 +23,10 @@
 
         h1 {
             margin-top: 20px;
-            font-size: 2.5em; /* 调整字体大小 */
+            font-size: 2.5em;
             color: #ffeb3b;
             animation: flicker 1.5s infinite;
-            margin-bottom: 20px; /* 增加底部间距 */
+            margin-bottom: 20px;
         }
 
         p {
@@ -36,16 +36,16 @@
         }
 
         .cake {
-            position: relative;
-            width: 400px;
-            height: 400px;
+            position: absolute;
+            bottom: 0;
+            width: 50%;
+            height: 250px;
             animation: float 3s ease-in-out infinite;
             display: flex;
             justify-content: center;
             align-items: flex-end;
         }
 
-        /* 蛋糕每层的样式 */
         .cake .layer {
             position: absolute;
             width: 100%;
@@ -54,7 +54,6 @@
             border: 2px solid #ff6f61;
         }
 
-        /* 3层蛋糕，每一层逐渐变宽 */
         .cake .layer:nth-child(1) {
             top: 0;
             height: 60px;
@@ -151,58 +150,27 @@
         .star:nth-child(9) { top: 20%; left: 60%; width: 6px; height: 6px; animation-duration: 4s; }
         .star:nth-child(10) { top: 10%; left: 70%; width: 7px; height: 7px; animation-duration: 3s; }
 
-        /* 烟花效果 */
-        .firework {
-            position: absolute;
-            width: 0;
-            height: 0;
-            background-color: transparent;
-            border-radius: 50%;
-            animation: explode 1.5s forwards;
-        }
-
-        .firework::before {
-            content: '';
-            position: absolute;
-            top: -5px;
-            left: -5px;
-            width: 10px;
-            height: 10px;
-            background-color: white;
-            border-radius: 50%;
-            animation: firework-burst 1s infinite;
-        }
-
-        @keyframes explode {
-            0% { width: 0; height: 0; }
-            50% { width: 80px; height: 80px; }
-            100% { width: 0; height: 0; }
-        }
-
-        @keyframes firework-burst {
-            0% { transform: scale(0); opacity: 0.5; }
-            50% { transform: scale(1.5); opacity: 1; }
-            100% { transform: scale(0); opacity: 0; }
-        }
-
         /* 横屏样式 */
         @media (orientation: landscape) {
             body {
-                flex-direction: column;
-                align-items: center;
-                justify-content: flex-end;
+                flex-direction: row;
+                align-items: flex-start;
+                justify-content: space-between;
+                padding: 20px;
             }
             h1 {
                 font-size: 2.5em;
+                margin-bottom: 0;
             }
             p {
-                font-size: 1.2em;
+                font-size: 1.5em;
             }
             .cake {
-                width: 60%;
-                height: 350px;
-                position: absolute;
-                bottom: 10%;
+                width: 30%; /* 调整蛋糕宽度 */
+                height: 200px;
+                position: fixed;
+                bottom: 0;
+                right: 0;
             }
             .candle {
                 top: -80px;
@@ -221,11 +189,10 @@
         <div class="layer"></div>
         <div class="layer"></div>
         <div class="layer"></div>
-        <!-- 蜡烛 -->
         <div class="candle"></div>
     </div>
 
-    <!-- 星星 -->
+    <!-- 星星的效果 -->
     <div class="star"></div>
     <div class="star"></div>
     <div class="star"></div>
@@ -236,16 +203,5 @@
     <div class="star"></div>
     <div class="star"></div>
     <div class="star"></div>
-
-    <script>
-        setInterval(function() {
-            const firework = document.createElement('div');
-            firework.classList.add('firework');
-            firework.style.top = `${Math.random() * 100}%`;
-            firework.style.left = `${Math.random() * 100}%`;
-            document.body.appendChild(firework);
-            setTimeout(() => firework.remove(), 2000);
-        }, 3000);
-    </script>
 </body>
 </html>
