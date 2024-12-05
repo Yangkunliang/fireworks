@@ -38,7 +38,7 @@
         .cake {
             position: relative;
             width: 400px;
-            height: 600px;
+            height: 400px;
             animation: float 3s ease-in-out infinite;
         }
 
@@ -51,85 +51,29 @@
             border: 2px solid #ff6f61;
         }
 
-        /* 10层蛋糕，每一层逐渐变宽 */
+        /* 3层蛋糕，每一层逐渐变宽 */
         .cake .layer:nth-child(1) {
             top: 0;
-            height: 40px;
-            width: 40%;
-            left: 30%;
+            height: 60px;
+            width: 50%;
+            left: 25%;
             background: linear-gradient(to bottom, #ffd54f, #ffb300);
         }
 
         .cake .layer:nth-child(2) {
-            top: 50px;
-            height: 45px;
-            width: 45%;
-            left: 27.5%;
+            top: 70px;
+            height: 70px;
+            width: 60%;
+            left: 20%;
             background: linear-gradient(to bottom, #ff8a65, #d84315);
         }
 
         .cake .layer:nth-child(3) {
-            top: 100px;
-            height: 50px;
-            width: 50%;
-            left: 25%;
-            background: linear-gradient(to bottom, #ff6e40, #e53935);
-        }
-
-        .cake .layer:nth-child(4) {
-            top: 160px;
-            height: 55px;
-            width: 55%;
-            left: 22.5%;
-            background: linear-gradient(to bottom, #ff5252, #d32f2f);
-        }
-
-        .cake .layer:nth-child(5) {
-            top: 220px;
-            height: 60px;
-            width: 60%;
-            left: 20%;
-            background: linear-gradient(to bottom, #ff1744, #c2185b);
-        }
-
-        .cake .layer:nth-child(6) {
-            top: 290px;
-            height: 65px;
-            width: 65%;
-            left: 17.5%;
-            background: linear-gradient(to bottom, #f50057, #d500f9);
-        }
-
-        .cake .layer:nth-child(7) {
-            top: 370px;
-            height: 70px;
+            top: 150px;
+            height: 80px;
             width: 70%;
             left: 15%;
-            background: linear-gradient(to bottom, #c2185b, #880e4f);
-        }
-
-        .cake .layer:nth-child(8) {
-            top: 460px;
-            height: 75px;
-            width: 75%;
-            left: 12.5%;
-            background: linear-gradient(to bottom, #9c27b0, #7b1fa2);
-        }
-
-        .cake .layer:nth-child(9) {
-            top: 550px;
-            height: 80px;
-            width: 80%;
-            left: 10%;
-            background: linear-gradient(to bottom, #673ab7, #512da8);
-        }
-
-        .cake .layer:nth-child(10) {
-            top: 650px;
-            height: 90px;
-            width: 90%;
-            left: 5%;
-            background: linear-gradient(to bottom, #3f51b5, #303f9f);
+            background: linear-gradient(to bottom, #ff6e40, #e53935);
         }
 
         .candle {
@@ -252,7 +196,7 @@
             }
             .cake {
                 width: 60%;
-                height: 500px;
+                height: 350px;
             }
             .candle {
                 top: -80px;
@@ -267,14 +211,7 @@
     <p>May your day be as sweet as this cake!</p>
 
     <div class="cake">
-        <!-- 10层蛋糕 -->
-        <div class="layer"></div>
-        <div class="layer"></div>
-        <div class="layer"></div>
-        <div class="layer"></div>
-        <div class="layer"></div>
-        <div class="layer"></div>
-        <div class="layer"></div>
+        <!-- 3层蛋糕 -->
         <div class="layer"></div>
         <div class="layer"></div>
         <div class="layer"></div>
@@ -283,13 +220,6 @@
     </div>
 
     <!-- 星星 -->
-    <div class="star"></div>
-    <div class="star"></div>
-    <div class="star"></div>
-    <div class="star"></div>
-    <div class="star"></div>
-    <div class="star"></div>
-    <div class="star"></div>
     <div class="star"></div>
     <div class="star"></div>
     <div class="star"></div>
