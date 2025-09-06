@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>小学一年级学习游戏</title>
+    <style>
+        body {
+            font-family: '微软雅黑', Arial, sans-serif;
+            background-color: #f0f8ff;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        h1 {
+            color: #4682b4;
+            text-align: center;
+        }
+        .game-container {
+            width: 90%;
+            max-width: 600px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .setup-section, .game-section {
+            margin-bottom: 20px;
+        }
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            background-color: #e6f7ff;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+        .stats div {
+            text-align: center;
+        }
+        .progress-container {
+            height: 20px;
+            background-color: #ddd;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 15px;
+        }
+        .progress-bar {
+            height: 100%;
+            background-color: #70a1ff;
+            width: 0%;
+            transition: width 0.3s ease-in-out;
+        }
+        .question-area {
+            text-align: center;
+            font-size: 32px;
+            margin: 20px 0;
+            min-height: 50px;
+        }
+        .answer-input-container {
+            display: flex;
+            margin-bottom: 15px;
+        }
+        .answer-input {
+            flex-grow: 1;
+            padding: 15px;
+            font-size: 20px;
+            text-align: center;
+            box-sizing: border-box;
+            border: 2px solid #4682b4;
+            border-radius: 5px 0 0 5px;
+        }
+        .voice-btn {
+            padding: 15px 20px;
+            font-size: 16px;
+            background-color: #4682b4;
+            color: white;
+            border: 2px solid #4682b4;
+            border-radius: 0 5px 5px 0;
+            cursor: pointer;
+        }
+        .voice-btn:hover {
+            background-color: #5a9bd5;
+        }
+        .voice-btn.listening {
+            background-color: #ff6b6b; /* 听写时变红 */
+            border-color: #ff6b6b;
+        }
+        .voice-btn:disabled {
+             background-color: #cccccc;
+             border-color: #cccccc;
+             cursor: not-allowed;
+        }
+        .falling-game-area {
+            position: relative;
+            height: 300px;
+            border: 1px solid #ccc;
+            overflow: hidden;
+            background-color: #fafafa;
+            margin-bottom: 15px;
+        }
+        .falling-question {
+            position: absolute;
+            font-size: 24px;
+            font-weight: bold;
+            user-select: none;
+            pointer-events: none;
+            text-align: center;
+            width: fit-content; /* 宽度自适应内容 */
+            padding: 5px 10px;
+            background-color: #e0f7fa;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .explosion {
+            position: absolute;
+            pointer-events: none;
+            font-size: 30px;
+            animation: explode 0.5s forwards;
+        }
+        @keyframes explode {
+            0% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(3); opacity: 0; }
+        }
+        .controls {
+            display: flex;
+            justify-content: space-between;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #4682b4;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #5a9bd5;
+        }
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        select, input {
+            padding: 8px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        label {
+            margin-right: 10px;
+        }
+        .difficulty-info {
+            font-size: 14px;
+            color: #666;
+            margin-top: 5px;
+        }
+        .message {
+            text-align: center;
+            color: #ff6b6b;
+            font-weight: bold;
+            min-height: 20px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="game-container">
+    <h1>小学一年级学习游戏</h1>
+
+    <!-- 游戏设置区域 -->
+    <div class="setup-section" id="setupSection">
+        <label for="subjectSelect">选择科目:</label>
+        <select id="subjectSelect">
+            <option value="math">数学</option>
+            <option value="chinese">语文</option>
+            <option value="english">英语</option>
+        </select>
+
+        <br><br>
+
+        <label for="difficultySelect">选择难度:</label>
+        <select id="difficultySelect">
+            <option value="easy">简单 (很慢, 简单题目)</option>
+            <option value="medium" selected>中等 (慢速, 中等题目)</option>
+            <option value="hard">困难 (中速, 困难题目)</option>
+        </select>
+        <div class="difficulty-info" id="difficultyInfo">速度: 慢速 | 题目难度: 中等</div>
+
+        <br>
+
+        <label for="questionCountInput">题目数量 (5-50):</label>
+        <input type="number" id="questionCountInput" min="5" max="50" value="10">
+
+        <br><br>
+
+        <button id="startGameBtn">开始游戏</button>
+    </div>
+
+    <!-- 游戏进行区域 -->
+    <div class="game-section" id="gameSection" style="display: none;">
+        <div class="stats">
+            <div>总题数: <span id="totalCount">0</span></div>
+            <div>答对: <span id="correctCount">0</span></div>
+            <div>答错: <span id="wrongCount">0</span></div>
+            <div>未答: <span id="unansweredCount">0</span></div>
+        </div>
+
+        <div class="progress-container">
+            <div class="progress-bar" id="progressBar"></div>
+        </div>
+
+        <!-- 文字快打模式区域 -->
+        <div class="falling-game-area" id="fallingGameArea">
+            <!-- 下落的题目将在这里动态生成 -->
+        </div>
+
+        <div class="answer-input-container">
+            <input type="text" class="answer-input" id="fallingAnswerInput" placeholder="在此输入答案或点击麦克风..." autocomplete="off" disabled>
+            <button class="voice-btn" id="voiceBtn" title="开始/停止语音识别">🎤</button>
+        </div>
+        <div class="message" id="message"></div>
+
+        <div class="controls">
+            <button id="pauseResumeBtn">暂停</button>
+            <button id="endGameBtn">结束游戏</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // --- 游戏数据和状态 ---
+    const gameData = {
+        math: {
+            easy: { speed: 0.5, range: 5, ops: ['+'] },
+            medium: { speed: 1, range: 10, ops: ['+', '-'] },
+            hard: { speed: 1.5, range: 20, ops: ['+', '-', '*'] }
+        },
+        chinese: {
+            easy: { speed: 0.5, words: ['一','二','三','四','五','六','七','八','九','十','人','大','小','上','下'] },
+            medium: { speed: 1, words: ['你好','世界','学习','快乐','阳光','花朵','小鸟','书本','老师','学生','学校','朋友','家庭','爸爸','妈妈'] },
+            hard: { speed: 1.5, words: ['学校','老师','学生','朋友','家庭','爸爸','妈妈','爷爷','奶奶','哥哥','姐姐','弟弟','妹妹','早上','晚上'] }
+        },
+        english: {
+            easy: { speed: 0.5, words: ['cat','dog','red','blue','one','two','sun','moon','star','car'] },
+            medium: { speed: 1, words: ['apple','banana','school','book','teacher','student','happy','sad','big','small','run','jump','sing','dance','play'] },
+            hard: { speed: 1.5, words: ['school','teacher','student','friend','family','father','mother','brother','sister','morning','evening','good','nice','new','old'] }
+        }
+    };
+
+    let gameState = {
+        subject: 'math',
+        difficulty: 'medium',
+        totalQuestions: 10,
+        currentQuestionIndex: 0,
+        correctAnswers: 0,
+        wrongAnswers: 0,
+        unansweredQuestions: 0,
+        fallingQuestions: [],
+        gameActive: false,
+        gamePaused: false,
+        animationId: null,
+        gameAreaHeight: 0,
+        gameAreaWidth: 0
+    };
+
+    // --- DOM 元素 ---
+    const setupSection = document.getElementById('setupSection');
+    const gameSection = document.getElementById('gameSection');
+    const subjectSelect = document.getElementById('subjectSelect');
+    const difficultySelect = document.getElementById('difficultySelect');
+    const difficultyInfo = document.getElementById('difficultyInfo');
+    const questionCountInput = document.getElementById('questionCountInput');
+    const startGameBtn = document.getElementById('startGameBtn');
+
+    const totalCountEl = document.getElementById('totalCount');
+    const correctCountEl = document.getElementById('correctCount');
+    const wrongCountEl = document.getElementById('wrongCount');
+    const unansweredCountEl = document.getElementById('unansweredCount');
+    const progressBar = document.getElementById('progressBar');
+
+    const fallingGameArea = document.getElementById('fallingGameArea');
+    const fallingAnswerInput = document.getElementById('fallingAnswerInput');
+    const voiceBtn = document.getElementById('voiceBtn');
+    const messageEl = document.getElementById('message');
+
+    const pauseResumeBtn = document.getElementById('pauseResumeBtn');
+    const endGameBtn = document.getElementById('endGameBtn');
+
+    // --- 语音识别相关 ---
+    let recognition;
+    let isListening = false;
+
+    function initSpeechRecognition() {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SpeechRecognition) {
+            console.warn("浏览器不支持 Web Speech API");
+            voiceBtn.disabled = true;
+            voiceBtn.title = "浏览器不支持";
+            return;
+        }
+
+        recognition = new SpeechRecognition();
+        recognition.continuous = false; // 单次识别
+        recognition.interimResults = false; // 不需要中间结果
+        // 语言设置可以根据科目动态调整，这里先设为通用
+        recognition.lang = 'zh-CN'; 
+
+        recognition.onstart = () => {
+            console.log("语音识别开始");
+            isListening = true;
+            voiceBtn.classList.add('listening');
+            voiceBtn.textContent = '🛑'; // 停止图标
+            messageEl.textContent = "正在聆听...";
+        };
+
+        recognition.onresult = (event) => {
+            const transcript = event.results[0][0].transcript.trim().toLowerCase();
+            console.log("识别结果:", transcript);
+            messageEl.textContent = `你说: ${transcript}`;
+            // 检查答案
+            checkAnswer(transcript);
+            stopListening(); // 识别一次后停止
+        };
+
+        recognition.onerror = (event) => {
+            console.error("语音识别错误:", event.error);
+            messageEl.textContent = `识别错误: ${event.error}`;
+            stopListening();
+             // 几秒后清空错误信息
+            setTimeout(() => {
+                 if (messageEl.textContent.startsWith("识别错误:")) {
+                      messageEl.textContent = "";
+                 }
+            }, 3000);
+        };
+
+        recognition.onend = () => {
+            console.log("语音识别结束");
+            isListening = false;
+            voiceBtn.classList.remove('listening');
+            voiceBtn.textContent = '🎤'; // 麦克风图标
+            // 如果游戏仍在进行且未暂停，则自动重启监听（可选）
+            // if (gameState.gameActive && !gameState.gamePaused) {
+            //     startListening();
+            // }
+        };
+    }
+
+    function startListening() {
+        if (recognition && !isListening && gameState.gameActive && !gameState.gamePaused && (gameState.subject === 'chinese' || gameState.subject === 'english')) {
+            try {
+                // 根据科目动态设置语言
+                if (gameState.subject === 'english') {
+                    recognition.lang = 'en-US';
+                } else {
+                    recognition.lang = 'zh-CN';
+                }
+                recognition.start();
+            } catch (e) {
+                console.error("启动语音识别失败:", e);
+                messageEl.textContent = "启动语音识别失败";
+            }
+        }
+    }
+
+    function stopListening() {
+        if (recognition && isListening) {
+            try {
+                recognition.stop();
+            } catch (e) {
+                console.error("停止语音识别失败:", e);
+            }
+        }
+    }
+
+    // --- 辅助函数 ---
+    function getRandomInt(min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    function generateMathQuestion(diffConfig) {
+        const num1 = getRandomInt(1, diffConfig.range);
+        const num2 = getRandomInt(1, diffConfig.range);
+        if (diffConfig.ops.includes('-') && (!diffConfig.ops.includes('+') || Math.random() > 0.5)) {
+             // 确保减法结果非负
+             const maxNum = Math.max(num1, num2);
+             const minNum = Math.min(num1, num2);
+             return { question: `${maxNum} - ${minNum}`, answer: (maxNum - minNum).toString() };
+        } else {
+            const op = diffConfig.ops[0];
+            return { question: `${num1} ${op} ${num2}`, answer: (num1 + num2).toString() };
+        }
+    }
+
+    function generateWordQuestion(diffConfig) {
+         if (diffConfig.words && diffConfig.words.length > 0) {
+            const randomIndex = getRandomInt(0, diffConfig.words.length - 1);
+            const word = diffConfig.words[randomIndex];
+            return { question: word, answer: word.toLowerCase() }; // 转为小写以方便比较
+        }
+        return { question: "无", answer: "无" };
+    }
+
+    function createFallingQuestionElement(questionObj) {
+        const questionEl = document.createElement('div');
+        questionEl.className = 'falling-question';
+        questionEl.textContent = questionObj.question;
+        // 随机水平位置，但确保不超出边界
+        const maxWidthOffset = gameState.gameAreaWidth - 100; // 100是预估的元素宽度
+        const leftPos = Math.max(10, Math.min(maxWidthOffset, getRandomInt(10, gameState.gameAreaWidth - 10)));
+        questionEl.style.left = `${leftPos}px`;
+        questionEl.style.top = '0px';
+        questionEl.dataset.answer = questionObj.answer;
+        questionEl.dataset.processed = "false"; // 标记是否已被处理（答对/落地）
+        return questionEl;
+    }
+
+    function createExplosionElement(x, y) {
+        const explosionEl = document.createElement('div');
+        explosionEl.className = 'explosion';
+        explosionEl.textContent = '💥';
+        explosionEl.style.left = `${x}px`;
+        explosionEl.style.top = `${y}px`;
+        return explosionEl;
+    }
+
+    // --- 游戏逻辑函数 ---
+    function updateStats() {
+        totalCountEl.textContent = gameState.totalQuestions;
+        correctCountEl.textContent = gameState.correctAnswers;
+        wrongCountEl.textContent = gameState.wrongAnswers;
+        gameState.unansweredQuestions = gameState.totalQuestions - gameState.currentQuestionIndex;
+        unansweredCountEl.textContent = gameState.unansweredQuestions;
+
+        const progressPercent = (gameState.currentQuestionIndex / gameState.totalQuestions) * 100;
+        progressBar.style.width = `${progressPercent}%`;
+    }
+
+    function checkAnswer(userInput) {
+        if (!userInput) return;
+
+        let targetQuestion = null;
+        let targetIndex = -1;
+
+        // 寻找最底部的、未被处理的题目
+        let lowestTop = -1;
+        gameState.fallingQuestions.forEach((qEl, index) => {
+            if (qEl.dataset.processed === "false") {
+                const top = parseFloat(qEl.style.top) || 0;
+                if (top > lowestTop) {
+                    lowestTop = top;
+                    targetQuestion = qEl;
+                    targetIndex = index;
+                }
+            }
+        });
+
+        if (targetQuestion) {
+            const correctAnswer = targetQuestion.dataset.answer;
+            // 对于语音输入，进行大小写不敏感和首尾空格忽略的比较
+            if (userInput.trim().toLowerCase() === correctAnswer) {
+                gameState.correctAnswers++;
+                // 触发爆炸效果
+                const rect = targetQuestion.getBoundingClientRect();
+                const areaRect = fallingGameArea.getBoundingClientRect();
+                const explosionX = rect.left - areaRect.left + rect.width / 2;
+                const explosionY = rect.top - areaRect.top + rect.height / 2;
+                const explosion = createExplosionElement(explosionX, explosionY);
+                fallingGameArea.appendChild(explosion);
+                // 移除爆炸元素
+                setTimeout(() => {
+                    if (explosion.parentNode) {
+                        explosion.remove();
+                    }
+                }, 500);
+
+                targetQuestion.dataset.processed = "true"; // 标记为已处理
+                targetQuestion.remove();
+                gameState.fallingQuestions.splice(targetIndex, 1);
+                updateStats();
+                messageEl.textContent = "答对了!"; // 成功消息
+                 // 几秒后清空成功消息
+                setTimeout(() => {
+                     if (messageEl.textContent === "答对了!") {
+                          messageEl.textContent = "";
+                     }
+                }, 1000);
+            } else {
+                 // 答错不移除，继续下落
+                 messageEl.textContent = `答错了，正确答案是: ${correctAnswer}`;
+                  // 几秒后清空错误信息
+                setTimeout(() => {
+                     if (messageEl.textContent.startsWith("答错了")) {
+                          messageEl.textContent = "";
+                     }
+                }, 2000);
+            }
+        } else {
+             messageEl.textContent = "没有可回答的题目";
+              // 几秒后清空信息
+            setTimeout(() => {
+                 if (messageEl.textContent === "没有可回答的题目") {
+                      messageEl.textContent = "";
+                 }
+            }, 1000);
+        }
+    }
+
+
+    function gameLoop() {
+        if (gameState.gamePaused || !gameState.gameActive) return;
+
+        // 生成新题目逻辑
+        if (gameState.currentQuestionIndex < gameState.totalQuestions) {
+            // 控制生成频率
+            if (Math.random() < 0.015) {
+                 const diffConfig = gameData[gameState.subject][gameState.difficulty];
+                let newQuestionObj;
+                if (gameState.subject === 'math') {
+                    newQuestionObj = generateMathQuestion(diffConfig);
+                } else {
+                    newQuestionObj = generateWordQuestion(diffConfig);
+                }
+                const questionEl = createFallingQuestionElement(newQuestionObj);
+                fallingGameArea.appendChild(questionEl);
+                gameState.fallingQuestions.push(questionEl);
+                gameState.currentQuestionIndex++;
+                updateStats();
+            }
+        }
+
+        // 移动所有未被处理的下落题目
+        const speed = gameData[gameState.subject][gameState.difficulty].speed;
+        for (let i = gameState.fallingQuestions.length - 1; i >= 0; i--) {
+            const qEl = gameState.fallingQuestions[i];
+            if (qEl.dataset.processed === "false") {
+                const currentTop = parseFloat(qEl.style.top) || 0;
+                const newTop = currentTop + speed;
+                qEl.style.top = `${newTop}px`;
+
+                // 检查是否落地 (答错)
+                if (newTop > gameState.gameAreaHeight) {
+                     gameState.wrongAnswers++;
+                     qEl.dataset.processed = "true"; // 标记为已处理
+                     qEl.remove();
+                     gameState.fallingQuestions.splice(i, 1);
+                     updateStats();
+                }
+            }
+        }
+
+        // 检查游戏结束条件
+        if (gameState.currentQuestionIndex >= gameState.totalQuestions && gameState.fallingQuestions.filter(q => q.dataset.processed === "false").length === 0) {
+             endGame();
+             return;
+        }
+
+        gameState.animationId = requestAnimationFrame(gameLoop);
+    }
+
+
+    function startGame() {
+        // 重置游戏状态
+        gameState.subject = subjectSelect.value;
+        gameState.difficulty = difficultySelect.value;
+        gameState.totalQuestions = parseInt(questionCountInput.value) || 10;
+        gameState.totalQuestions = Math.max(5, Math.min(50, gameState.totalQuestions));
+        gameState.currentQuestionIndex = 0;
+        gameState.correctAnswers = 0;
+        gameState.wrongAnswers = 0;
+        gameState.unansweredQuestions = gameState.totalQuestions;
+        gameState.gameActive = true;
+        gameState.gamePaused = false;
+        gameState.fallingQuestions = [];
+
+        // 清空游戏区域和消息
+        fallingGameArea.innerHTML = '';
+        messageEl.textContent = '';
+        fallingAnswerInput.value = '';
+
+        // 更新UI
+        setupSection.style.display = 'none';
+        gameSection.style.display = 'block';
+        pauseResumeBtn.textContent = '暂停';
+        
+        // *** 关键修复：确保输入框在新游戏开始时是启用的 ***
+        fallingAnswerInput.disabled = false;
+        voiceBtn.disabled = false; // 同时启用语音按钮
+
+        fallingAnswerInput.focus();
+
+        gameState.gameAreaHeight = fallingGameArea.clientHeight;
+        gameState.gameAreaWidth = fallingGameArea.clientWidth;
+
+        updateStats();
+        
+        if (gameState.animationId) {
+             cancelAnimationFrame(gameState.animationId);
+        }
+        gameLoop();
+    }
+
+    function pauseGame() {
+        gameState.gamePaused = true;
+        pauseResumeBtn.textContent = '继续';
+        fallingAnswerInput.disabled = true;
+        // 暂停时也停止语音监听
+        stopListening();
+        voiceBtn.disabled = true;
+        cancelAnimationFrame(gameState.animationId);
+    }
+
+    function resumeGame() {
+        gameState.gamePaused = false;
+        pauseResumeBtn.textContent = '暂停';
+        // 恢复时重新启用输入和语音
+        fallingAnswerInput.disabled = false;
+        voiceBtn.disabled = false;
+        fallingAnswerInput.focus();
+        gameLoop();
+    }
+
+    function endGame() {
+        gameState.gameActive = false;
+        gameState.gamePaused = true;
+        cancelAnimationFrame(gameState.animationId);
+        fallingAnswerInput.disabled = true;
+        stopListening(); // 结束时停止语音
+        voiceBtn.disabled = true;
+        
+        updateStats();
+        const totalAnswered = gameState.correctAnswers + gameState.wrongAnswers;
+        const finalUnanswered = gameState.totalQuestions - totalAnswered;
+        unansweredCountEl.textContent = finalUnanswered;
+
+        alert(`游戏结束!\n总题数: ${gameState.totalQuestions}\n答对: ${gameState.correctAnswers}\n答错: ${gameState.wrongAnswers}\n未答: ${finalUnanswered}`);
+        
+        setupSection.style.display = 'block';
+        gameSection.style.display = 'none';
+    }
+
+    // --- 事件监听器 ---
+    startGameBtn.addEventListener('click', startGame);
+
+    fallingAnswerInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && gameState.gameActive && !gameState.gamePaused) {
+            const userAnswer = fallingAnswerInput.value.trim();
+            if (userAnswer) {
+                checkAnswer(userAnswer);
+                fallingAnswerInput.value = '';
+            }
+        }
+    });
+
+    voiceBtn.addEventListener('click', () => {
+        if (isListening) {
+            stopListening();
+        } else {
+            startListening();
+        }
+    });
+
+    pauseResumeBtn.addEventListener('click', () => {
+        if (gameState.gamePaused) {
+            resumeGame();
+        } else {
+            pauseGame();
+        }
+    });
+
+    endGameBtn.addEventListener('click', endGame);
+
+    difficultySelect.addEventListener('change', () => {
+         const diff = difficultySelect.value;
+         const infoMap = {
+             'easy': '速度: 很慢 | 题目难度: 简单',
+             'medium': '速度: 慢 | 题目难度: 中等',
+             'hard': '速度: 中速 | 题目难度: 困难'
+         };
+         difficultyInfo.textContent = infoMap[diff] || '';
+    });
+
+    // 初始化语音识别和难度信息
+    window.onload = () => {
+        initSpeechRecognition();
+        difficultySelect.dispatchEvent(new Event('change'));
+    };
+</script>
+
+</body>
+</html>
