@@ -1,0 +1,1424 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>小学一年级学习游戏</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        body {
+            font-family: '微软雅黑', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+        
+        h1 {
+            color: white;
+            text-align: center;
+            margin: 10px 0 20px 0;
+            font-size: clamp(20px, 5vw, 28px);
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .game-container {
+            width: 100%;
+            max-width: 500px;
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+            padding: 15px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .setup-section, .game-section {
+            margin-bottom: 15px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #333;
+            font-size: 14px;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            padding: 12px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            color: white;
+            font-weight: bold;
+            font-size: 12px;
+        }
+        
+        .stats div {
+            text-align: center;
+            padding: 4px;
+        }
+        
+        .progress-container {
+            height: 25px;
+            background-color: #e0e0e0;
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 15px;
+            position: relative;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #4facfe 0%, #00f2fe 100%);
+            width: 0%;
+            transition: width 0.3s ease-in-out;
+            border-radius: 12px;
+        }
+        
+        .progress-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #333;
+            font-weight: bold;
+            font-size: 12px;
+        }
+        
+        .falling-game-area {
+            position: relative;
+            height: 180px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            overflow: hidden;
+            background: linear-gradient(180deg, #e3f2fd 0%, #bbdefb 100%);
+            margin-bottom: 10px;
+        }
+        
+        .falling-question {
+            position: absolute;
+            font-size: clamp(16px, 4vw, 20px);
+            font-weight: bold;
+            user-select: none;
+            pointer-events: none;
+            text-align: center;
+            padding: 6px 10px;
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            border-radius: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            color: #333;
+            min-width: 50px;
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+        
+        @keyframes glow {
+            from { box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+            to { box-shadow: 0 4px 20px rgba(252, 182, 159, 0.6); }
+        }
+        
+        .explosion {
+            position: absolute;
+            pointer-events: none;
+            font-size: 30px;
+            animation: explode 0.6s forwards;
+            z-index: 100;
+        }
+        
+        @keyframes explode {
+            0% { transform: scale(1) rotate(0deg); opacity: 1; }
+            50% { transform: scale(2) rotate(180deg); opacity: 0.8; }
+            100% { transform: scale(4) rotate(360deg); opacity: 0; }
+        }
+        
+        /* 顶部反馈提示 */
+        .top-feedback {
+            position: fixed;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.85);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+            z-index: 1000;
+            pointer-events: none;
+            animation: topFeedbackSlide 2s forwards;
+            max-width: 80vw;
+            text-align: center;
+        }
+        
+        @keyframes topFeedbackSlide {
+            0% { opacity: 0; transform: translateX(-50%) translateY(-100%); }
+            15% { opacity: 1; transform: translateX(-50%) translateY(0); }
+            85% { opacity: 1; transform: translateX(-50%) translateY(0); }
+            100% { opacity: 0; transform: translateX(-50%) translateY(-100%); }
+        }
+        
+        /* 自定义键盘样式 */
+        .custom-keyboard {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 12px;
+            padding: 10px;
+            margin-bottom: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .keyboard-title {
+            text-align: center;
+            font-weight: bold;
+            color: #495057;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        
+        .keyboard-grid {
+            display: grid;
+            gap: 6px;
+        }
+        
+        .math-keyboard {
+            grid-template-columns: repeat(5, 1fr);
+        }
+        
+        .word-keyboard {
+            grid-template-columns: repeat(3, 1fr);
+        }
+        
+        .keyboard-key {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 8px 4px;
+            font-size: clamp(11px, 2.8vw, 13px);
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            min-height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            user-select: none;
+            line-height: 1.2;
+        }
+        
+        .keyboard-key:hover, .keyboard-key:active {
+            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+            transform: translateY(-1px) scale(1.05);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        
+        .keyboard-key:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .keyboard-key.correct {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            animation: correctPulse 0.6s ease-in-out;
+        }
+        
+        .keyboard-key.wrong {
+            background: linear-gradient(135deg, #dc3545 0%, #fd7e14 100%);
+            animation: wrongShake 0.6s ease-in-out;
+        }
+        
+        @keyframes correctPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.15); }
+        }
+        
+        @keyframes wrongShake {
+            0%, 20%, 40%, 60%, 80%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-3px); }
+        }
+        
+        .current-answer {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            border: 2px solid #2196f3;
+            border-radius: 10px;
+            padding: 12px;
+            text-align: center;
+            font-size: 16px;
+            font-weight: bold;
+            color: #1976d2;
+            margin-bottom: 10px;
+            min-height: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .answer-controls {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+        
+        .clear-btn, .submit-btn {
+            flex: 1;
+            padding: 10px;
+            font-size: 13px;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .clear-btn {
+            background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+            color: white;
+        }
+        
+        .submit-btn {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+        }
+        
+        .clear-btn:hover, .clear-btn:active {
+            background: linear-gradient(135deg, #495057 0%, #343a40 100%);
+            transform: translateY(-1px);
+        }
+        
+        .submit-btn:hover, .submit-btn:active {
+            background: linear-gradient(135deg, #20c997 0%, #17a2b8 100%);
+            transform: translateY(-1px);
+        }
+        
+        .clear-btn:disabled, .submit-btn:disabled {
+            background: #adb5bd;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .voice-btn {
+            width: 100%;
+            padding: 10px;
+            font-size: 14px;
+            background: linear-gradient(135deg, #fd7e14 0%, #e83e8c 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+        
+        .voice-btn:hover, .voice-btn:active {
+            background: linear-gradient(135deg, #e83e8c 0%, #fd7e14 100%);
+            transform: translateY(-1px);
+        }
+        
+        .voice-btn.listening {
+            background: linear-gradient(135deg, #dc3545 0%, #fd7e14 100%);
+            animation: pulse 1s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .voice-btn:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .controls {
+            display: flex;
+            gap: 10px;
+            justify-content: space-between;
+        }
+        
+        button {
+            padding: 12px 20px;
+            font-size: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            min-height: 44px;
+        }
+        
+        button:hover, button:active {
+            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+        }
+        
+        button:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        select, input[type="number"] {
+            width: 100%;
+            padding: 12px;
+            font-size: 16px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            background-color: white;
+            transition: border-color 0.3s ease;
+        }
+        
+        select:focus, input[type="number"]:focus {
+            border-color: #667eea;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .difficulty-info {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+            font-style: italic;
+        }
+        
+        .message {
+            text-align: center;
+            font-weight: bold;
+            min-height: 20px;
+            margin: 8px 0;
+            font-size: 12px;
+            padding: 6px;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+        }
+        
+        .message.success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .message.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .message.info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        
+        /* 移动端优化 */
+        @media (max-width: 480px) {
+            body {
+                padding: 5px;
+            }
+            
+            .game-container {
+                padding: 10px;
+                border-radius: 10px;
+            }
+            
+            .stats {
+                font-size: 11px;
+                padding: 8px;
+            }
+            
+            .falling-game-area {
+                height: 150px;
+            }
+            
+            .controls {
+                flex-direction: column;
+            }
+            
+            .controls button {
+                margin-bottom: 5px;
+            }
+            
+            .keyboard-key {
+                padding: 6px 3px;
+                font-size: clamp(10px, 2.5vw, 12px);
+                min-height: 36px;
+            }
+            
+            .math-keyboard {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+        
+        /* 防止iOS缩放 */
+        @media screen and (max-device-width: 480px) {
+            select, textarea, input[type="text"], input[type="password"], input[type="datetime"], input[type="datetime-local"], input[type="date"], input[type="month"], input[type="time"], input[type="week"], input[type="number"], input[type="email"], input[type="url"], input[type="search"], input[type="tel"], input[type="color"] {
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="game-container">
+    <h1>🎮 小学一年级学习游戏</h1>
+
+    <!-- 游戏设置区域 -->
+    <div class="setup-section" id="setupSection">
+        <div class="form-group">
+            <label for="subjectSelect">📚 选择科目:</label>
+            <select id="subjectSelect">
+                <option value="math">数学 🔢</option>
+                <option value="chinese">语文 🏮</option>
+                <option value="english">英语 🌍</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="difficultySelect">⚡ 选择难度:</label>
+            <select id="difficultySelect">
+                <option value="easy" selected>简单 (超慢速, 简单题目)</option>
+                <option value="medium">中等 (慢速, 中等题目)</option>
+                <option value="hard">困难 (适中速度, 困难题目)</option>
+            </select>
+            <div class="difficulty-info" id="difficultyInfo">速度: 超慢速 | 题目难度: 简单</div>
+        </div>
+
+        <div class="form-group">
+            <label for="questionCountInput">📝 题目数量 (5-50):</label>
+            <input type="number" id="questionCountInput" min="5" max="50" value="10">
+        </div>
+
+        <button id="startGameBtn">🚀 开始游戏</button>
+    </div>
+
+    <!-- 游戏进行区域 -->
+    <div class="game-section" id="gameSection" style="display: none;">
+        <div class="stats">
+            <div>📊 总题数: <span id="totalCount">0</span></div>
+            <div>✅ 答对: <span id="correctCount">0</span></div>
+            <div>❌ 答错: <span id="wrongCount">0</span></div>
+            <div>⏳ 未答: <span id="unansweredCount">0</span></div>
+        </div>
+
+        <div class="progress-container">
+            <div class="progress-bar" id="progressBar"></div>
+            <div class="progress-text" id="progressText">0%</div>
+        </div>
+
+        <!-- 文字快打模式区域 -->
+        <div class="falling-game-area" id="fallingGameArea">
+            <!-- 下落的题目将在这里动态生成 -->
+        </div>
+
+        <!-- 当前答案显示 -->
+        <div class="current-answer" id="currentAnswer">准备输入答案...</div>
+
+        <!-- 自定义键盘 -->
+        <div class="custom-keyboard" id="customKeyboard">
+            <div class="keyboard-title" id="keyboardTitle">数字键盘</div>
+            <div class="keyboard-grid" id="keyboardGrid">
+                <!-- 键盘按钮将在这里动态生成 -->
+            </div>
+        </div>
+
+        <!-- 答案控制按钮 -->
+        <div class="answer-controls">
+            <button class="clear-btn" id="clearBtn">🗑️ 清空</button>
+            <button class="submit-btn" id="submitBtn">✅ 提交</button>
+        </div>
+
+        <!-- 语音输入按钮 -->
+        <button class="voice-btn" id="voiceBtn" title="开始/停止语音识别">🎤 语音输入</button>
+
+        <div class="message" id="message"></div>
+
+        <div class="controls">
+            <button id="pauseResumeBtn">⏸️ 暂停</button>
+            <button id="endGameBtn">🏁 结束游戏</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // 音效系统
+    class SoundManager {
+        constructor() {
+            this.context = null;
+            this.enabled = true;
+            this.init();
+        }
+        
+        async init() {
+            try {
+                this.context = new (window.AudioContext || window.webkitAudioContext)();
+                document.addEventListener('click', () => {
+                    if (this.context && this.context.state === 'suspended') {
+                        this.context.resume();
+                    }
+                }, { once: true });
+            } catch (e) {
+                console.warn('音频不支持:', e);
+                this.enabled = false;
+            }
+        }
+        
+        playCorrectSound() {
+            if (!this.enabled || !this.context) return;
+            this.playTone([523.25, 659.25, 783.99], 0.3, 'sine');
+        }
+        
+        playWrongSound() {
+            if (!this.enabled || !this.context) return;
+            this.playTone([220, 196], 0.5, 'sawtooth');
+        }
+        
+        playGameEndSound() {
+            if (!this.enabled || !this.context) return;
+            const notes = [261.63, 293.66, 329.63, 349.23, 392.00, 440.00, 493.88, 523.25];
+            notes.forEach((freq, i) => {
+                setTimeout(() => this.playTone([freq], 0.2, 'sine'), i * 100);
+            });
+        }
+        
+        playTone(frequencies, duration, waveType = 'sine') {
+            if (!this.context) return;
+            
+            const gainNode = this.context.createGain();
+            gainNode.connect(this.context.destination);
+            gainNode.gain.setValueAtTime(0, this.context.currentTime);
+            gainNode.gain.linearRampToValueAtTime(0.1, this.context.currentTime + 0.01);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, this.context.currentTime + duration);
+            
+            frequencies.forEach(freq => {
+                const oscillator = this.context.createOscillator();
+                oscillator.connect(gainNode);
+                oscillator.frequency.setValueAtTime(freq, this.context.currentTime);
+                oscillator.type = waveType;
+                oscillator.start(this.context.currentTime);
+                oscillator.stop(this.context.currentTime + duration);
+            });
+        }
+    }
+
+    // 反馈系统
+    class FeedbackManager {
+        static showTopFeedback(message, type = 'success') {
+            const existing = document.querySelector('.top-feedback');
+            if (existing) existing.remove();
+            
+            const feedback = document.createElement('div');
+            feedback.className = 'top-feedback';
+            feedback.textContent = message;
+            feedback.style.background = type === 'success' ? 
+                'linear-gradient(135deg, #28a745 0%, #20c997 100%)' :
+                'linear-gradient(135deg, #dc3545 0%, #fd7e14 100%)';
+            
+            document.body.appendChild(feedback);
+            setTimeout(() => feedback.remove(), 2000);
+        }
+    }
+
+    // --- 游戏数据和状态 ---
+    const gameData = {
+        math: {
+            easy: { speed: 0.2, range: 5, ops: ['+'], generateFreq: 0.005 },
+            medium: { speed: 0.4, range: 10, ops: ['+', '-'], generateFreq: 0.008 },
+            hard: { speed: 0.6, range: 20, ops: ['+', '-', '*'], generateFreq: 0.012 }
+        },
+        chinese: {
+            easy: { 
+                speed: 0.2, 
+                generateFreq: 0.005,
+                words: [
+                    {word: '一', pinyin: 'yī'},
+                    {word: '二', pinyin: 'èr'},
+                    {word: '三', pinyin: 'sān'},
+                    {word: '四', pinyin: 'sì'},
+                    {word: '五', pinyin: 'wǔ'},
+                    {word: '六', pinyin: 'liù'},
+                    {word: '七', pinyin: 'qī'},
+                    {word: '八', pinyin: 'bā'},
+                    {word: '九', pinyin: 'jiǔ'},
+                    {word: '十', pinyin: 'shí'},
+                    {word: '人', pinyin: 'rén'},
+                    {word: '大', pinyin: 'dà'},
+                    {word: '小', pinyin: 'xiǎo'},
+                    {word: '上', pinyin: 'shàng'},
+                    {word: '下', pinyin: 'xià'}
+                ]
+            },
+            medium: { 
+                speed: 0.4, 
+                generateFreq: 0.008,
+                words: [
+                    {word: '你好', pinyin: 'nǐ hǎo'},
+                    {word: '世界', pinyin: 'shì jiè'},
+                    {word: '学习', pinyin: 'xué xí'},
+                    {word: '快乐', pinyin: 'kuài lè'},
+                    {word: '阳光', pinyin: 'yáng guāng'},
+                    {word: '花朵', pinyin: 'huā duǒ'},
+                    {word: '小鸟', pinyin: 'xiǎo niǎo'},
+                    {word: '书本', pinyin: 'shū běn'},
+                    {word: '老师', pinyin: 'lǎo shī'},
+                    {word: '学生', pinyin: 'xué shēng'},
+                    {word: '学校', pinyin: 'xué xiào'},
+                    {word: '朋友', pinyin: 'péng yǒu'},
+                    {word: '家庭', pinyin: 'jiā tíng'},
+                    {word: '爸爸', pinyin: 'bà ba'},
+                    {word: '妈妈', pinyin: 'mā ma'}
+                ]
+            },
+            hard: { 
+                speed: 0.6, 
+                generateFreq: 0.012,
+                words: [
+                    {word: '学校', pinyin: 'xué xiào'},
+                    {word: '老师', pinyin: 'lǎo shī'},
+                    {word: '学生', pinyin: 'xué shēng'},
+                    {word: '朋友', pinyin: 'péng yǒu'},
+                    {word: '家庭', pinyin: 'jiā tíng'},
+                    {word: '爸爸', pinyin: 'bà ba'},
+                    {word: '妈妈', pinyin: 'mā ma'},
+                    {word: '爷爷', pinyin: 'yé ye'},
+                    {word: '奶奶', pinyin: 'nǎi nai'},
+                    {word: '哥哥', pinyin: 'gē ge'},
+                    {word: '姐姐', pinyin: 'jiě jie'},
+                    {word: '弟弟', pinyin: 'dì di'},
+                    {word: '妹妹', pinyin: 'mèi mei'},
+                    {word: '早上', pinyin: 'zǎo shàng'},
+                    {word: '晚上', pinyin: 'wǎn shàng'}
+                ]
+            }
+        },
+        english: {
+            easy: { 
+                speed: 0.2, 
+                generateFreq: 0.005,
+                words: [
+                    {word: 'cat', chinese: '猫'},
+                    {word: 'dog', chinese: '狗'},
+                    {word: 'red', chinese: '红色'},
+                    {word: 'blue', chinese: '蓝色'},
+                    {word: 'one', chinese: '一'},
+                    {word: 'two', chinese: '二'},
+                    {word: 'sun', chinese: '太阳'},
+                    {word: 'moon', chinese: '月亮'},
+                    {word: 'star', chinese: '星星'},
+                    {word: 'car', chinese: '汽车'}
+                ]
+            },
+            medium: { 
+                speed: 0.4, 
+                generateFreq: 0.008,
+                words: [
+                    {word: 'apple', chinese: '苹果'},
+                    {word: 'banana', chinese: '香蕉'},
+                    {word: 'school', chinese: '学校'},
+                    {word: 'book', chinese: '书'},
+                    {word: 'teacher', chinese: '老师'},
+                    {word: 'student', chinese: '学生'},
+                    {word: 'happy', chinese: '开心'},
+                    {word: 'sad', chinese: '伤心'},
+                    {word: 'big', chinese: '大'},
+                    {word: 'small', chinese: '小'},
+                    {word: 'run', chinese: '跑'},
+                    {word: 'jump', chinese: '跳'},
+                    {word: 'sing', chinese: '唱'},
+                    {word: 'dance', chinese: '跳舞'},
+                    {word: 'play', chinese: '玩'}
+                ]
+            },
+            hard: { 
+                speed: 0.6, 
+                generateFreq: 0.012,
+                words: [
+                    {word: 'school', chinese: '学校'},
+                    {word: 'teacher', chinese: '老师'},
+                    {word: 'student', chinese: '学生'},
+                    {word: 'friend', chinese: '朋友'},
+                    {word: 'family', chinese: '家庭'},
+                    {word: 'father', chinese: '爸爸'},
+                    {word: 'mother', chinese: '妈妈'},
+                    {word: 'brother', chinese: '兄弟'},
+                    {word: 'sister', chinese: '姐妹'},
+                    {word: 'morning', chinese: '早上'},
+                    {word: 'evening', chinese: '晚上'},
+                    {word: 'good', chinese: '好的'},
+                    {word: 'nice', chinese: '很好'},
+                    {word: 'new', chinese: '新的'},
+                    {word: 'old', chinese: '旧的'}
+                ]
+            }
+        }
+    };
+
+    let gameState = {
+        subject: 'math',
+        difficulty: 'easy',
+        totalQuestions: 10,
+        currentQuestionIndex: 0,
+        correctAnswers: 0,
+        wrongAnswers: 0,
+        unansweredQuestions: 0,
+        fallingQuestions: [],
+        gameActive: false,
+        gamePaused: false,
+        animationId: null,
+        gameAreaHeight: 0,
+        gameAreaWidth: 0,
+        currentAnswer: '',
+        availableWords: []
+    };
+
+    // 初始化音效和反馈管理器
+    const soundManager = new SoundManager();
+
+    // --- DOM 元素 ---
+    const setupSection = document.getElementById('setupSection');
+    const gameSection = document.getElementById('gameSection');
+    const subjectSelect = document.getElementById('subjectSelect');
+    const difficultySelect = document.getElementById('difficultySelect');
+    const difficultyInfo = document.getElementById('difficultyInfo');
+    const questionCountInput = document.getElementById('questionCountInput');
+    const startGameBtn = document.getElementById('startGameBtn');
+
+    const totalCountEl = document.getElementById('totalCount');
+    const correctCountEl = document.getElementById('correctCount');
+    const wrongCountEl = document.getElementById('wrongCount');
+    const unansweredCountEl = document.getElementById('unansweredCount');
+    const progressBar = document.getElementById('progressBar');
+    const progressText = document.getElementById('progressText');
+
+    const fallingGameArea = document.getElementById('fallingGameArea');
+    const currentAnswerEl = document.getElementById('currentAnswer');
+    const customKeyboard = document.getElementById('customKeyboard');
+    const keyboardTitle = document.getElementById('keyboardTitle');
+    const keyboardGrid = document.getElementById('keyboardGrid');
+    const clearBtn = document.getElementById('clearBtn');
+    const submitBtn = document.getElementById('submitBtn');
+    const voiceBtn = document.getElementById('voiceBtn');
+    const messageEl = document.getElementById('message');
+
+    const pauseResumeBtn = document.getElementById('pauseResumeBtn');
+    const endGameBtn = document.getElementById('endGameBtn');
+
+    // --- 键盘生成函数 ---
+    function generateMathKeyboard() {
+        keyboardTitle.textContent = '数字键盘';
+        keyboardGrid.className = 'keyboard-grid math-keyboard';
+        keyboardGrid.innerHTML = '';
+        
+        const keys = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'];
+        
+        keys.forEach(key => {
+            const keyBtn = document.createElement('button');
+            keyBtn.className = 'keyboard-key';
+            keyBtn.textContent = key;
+            keyBtn.addEventListener('click', () => addToAnswer(key));
+            keyboardGrid.appendChild(keyBtn);
+        });
+    }
+
+    function generateWordKeyboard(wordsData) {
+        const subject = gameState.subject;
+        keyboardTitle.textContent = subject === 'chinese' ? '拼音键盘' : '中文键盘';
+        keyboardGrid.className = 'keyboard-grid word-keyboard';
+        keyboardGrid.innerHTML = '';
+        
+        // 从词汇数据中随机选择12个作为键盘选项
+        gameState.availableWords = [...wordsData].sort(() => Math.random() - 0.5).slice(0, 12);
+        
+        gameState.availableWords.forEach(wordObj => {
+            const keyBtn = document.createElement('button');
+            keyBtn.className = 'keyboard-key';
+            
+            if (subject === 'chinese') {
+                // 语文：显示拼音，点击后答案是汉字
+                keyBtn.innerHTML = `<div style="font-size: 0.85em; line-height: 1.1;">${wordObj.pinyin}</div>`;
+                keyBtn.dataset.answer = wordObj.word.toLowerCase();
+            } else {
+                // 英语：显示中文，点击后答案是英文
+                keyBtn.innerHTML = `<div style="font-size: 0.85em; line-height: 1.1;">${wordObj.chinese}</div>`;
+                keyBtn.dataset.answer = wordObj.word.toLowerCase();
+            }
+            
+            keyBtn.addEventListener('click', () => selectWordAnswer(keyBtn.dataset.answer));
+            keyboardGrid.appendChild(keyBtn);
+        });
+    }
+
+    function addToAnswer(char) {
+        if (gameState.currentAnswer.length < 10) {
+            gameState.currentAnswer += char;
+            updateAnswerDisplay();
+        }
+    }
+
+    function selectWordAnswer(answer) {
+        gameState.currentAnswer = answer;
+        updateAnswerDisplay();
+        // 自动提交词汇答案
+        setTimeout(() => submitAnswer(), 100);
+    }
+
+    function clearAnswer() {
+        gameState.currentAnswer = '';
+        updateAnswerDisplay();
+        resetKeyboardStyles();
+    }
+
+    function updateAnswerDisplay() {
+        currentAnswerEl.textContent = gameState.currentAnswer || '准备输入答案...';
+    }
+
+    function resetKeyboardStyles() {
+        document.querySelectorAll('.keyboard-key').forEach(key => {
+            key.classList.remove('correct', 'wrong');
+        });
+    }
+
+    // --- 语音识别相关 ---
+    let recognition;
+    let isListening = false;
+
+    function initSpeechRecognition() {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SpeechRecognition) {
+            console.warn("浏览器不支持 Web Speech API");
+            voiceBtn.disabled = true;
+            voiceBtn.innerHTML = "🚫 不支持语音";
+            return;
+        }
+
+        recognition = new SpeechRecognition();
+        recognition.continuous = false;
+        recognition.interimResults = false;
+        recognition.lang = 'zh-CN'; 
+
+        recognition.onstart = () => {
+            isListening = true;
+            voiceBtn.classList.add('listening');
+            voiceBtn.innerHTML = '🛑 停止语音';
+            showMessage("正在聆听...", 'info');
+        };
+
+        recognition.onresult = (event) => {
+            const transcript = event.results[0][0].transcript.trim().toLowerCase();
+            showMessage(`听到: ${transcript}`, 'info');
+            gameState.currentAnswer = transcript;
+            updateAnswerDisplay();
+            setTimeout(() => submitAnswer(), 500);
+            stopListening();
+        };
+
+        recognition.onerror = (event) => {
+            console.error("语音识别错误:", event.error);
+            showMessage(`识别错误: ${event.error}`, 'error');
+            stopListening();
+        };
+
+        recognition.onend = () => {
+            isListening = false;
+            voiceBtn.classList.remove('listening');
+            voiceBtn.innerHTML = '🎤 语音输入';
+        };
+    }
+
+    function startListening() {
+        if (recognition && !isListening && gameState.gameActive && !gameState.gamePaused) {
+            try {
+                if (gameState.subject === 'english') {
+                    recognition.lang = 'en-US';
+                } else {
+                    recognition.lang = 'zh-CN';
+                }
+                recognition.start();
+            } catch (e) {
+                console.error("启动语音识别失败:", e);
+                showMessage("启动语音识别失败", 'error');
+            }
+        }
+    }
+
+    function stopListening() {
+        if (recognition && isListening) {
+            try {
+                recognition.stop();
+            } catch (e) {
+                console.error("停止语音识别失败:", e);
+            }
+        }
+    }
+
+    // --- 辅助函数 ---
+    function getRandomInt(min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    function generateMathQuestion(diffConfig) {
+        const num1 = getRandomInt(1, diffConfig.range);
+        const num2 = getRandomInt(1, diffConfig.range);
+        
+        if (diffConfig.ops.includes('*') && Math.random() < 0.3) {
+            const smallNum1 = getRandomInt(1, 5);
+            const smallNum2 = getRandomInt(1, 5);
+            return { question: `${smallNum1} × ${smallNum2}`, answer: (smallNum1 * smallNum2).toString() };
+        } else if (diffConfig.ops.includes('-') && Math.random() > 0.5) {
+            const maxNum = Math.max(num1, num2);
+            const minNum = Math.min(num1, num2);
+            return { question: `${maxNum} - ${minNum}`, answer: (maxNum - minNum).toString() };
+        } else {
+            return { question: `${num1} + ${num2}`, answer: (num1 + num2).toString() };
+        }
+    }
+
+    function generateWordQuestion(diffConfig) {
+        if (diffConfig.words && diffConfig.words.length > 0) {
+            const randomIndex = getRandomInt(0, diffConfig.words.length - 1);
+            const wordObj = diffConfig.words[randomIndex];
+            return { 
+                question: wordObj.word, 
+                answer: wordObj.word.toLowerCase() 
+            };
+        }
+        return { question: "无", answer: "无" };
+    }
+
+    function createFallingQuestionElement(questionObj) {
+        const questionEl = document.createElement('div');
+        questionEl.className = 'falling-question';
+        questionEl.textContent = questionObj.question;
+        
+        const maxLeftPos = gameState.gameAreaWidth - 80;
+        const leftPos = Math.max(10, Math.min(maxLeftPos, getRandomInt(10, maxLeftPos)));
+        questionEl.style.left = `${leftPos}px`;
+        questionEl.style.top = '-50px';
+        questionEl.dataset.answer = questionObj.answer;
+        questionEl.dataset.processed = "false";
+        return questionEl;
+    }
+
+    function createExplosionElement(x, y, isCorrect = true) {
+        const explosionEl = document.createElement('div');
+        explosionEl.className = 'explosion';
+        explosionEl.textContent = isCorrect ? '🎉' : '💥';
+        explosionEl.style.left = `${x}px`;
+        explosionEl.style.top = `${y}px`;
+        return explosionEl;
+    }
+
+    function showMessage(text, type = 'info') {
+        messageEl.textContent = text;
+        messageEl.className = `message ${type}`;
+        setTimeout(() => {
+            if (messageEl.textContent === text) {
+                messageEl.textContent = '';
+                messageEl.className = 'message';
+            }
+        }, type === 'error' ? 3000 : 2000);
+    }
+
+    // --- 游戏逻辑函数 ---
+    function updateStats() {
+        totalCountEl.textContent = gameState.totalQuestions;
+        correctCountEl.textContent = gameState.correctAnswers;
+        wrongCountEl.textContent = gameState.wrongAnswers;
+        gameState.unansweredQuestions = gameState.totalQuestions - gameState.currentQuestionIndex;
+        unansweredCountEl.textContent = gameState.unansweredQuestions;
+
+        const progressPercent = (gameState.currentQuestionIndex / gameState.totalQuestions) * 100;
+        progressBar.style.width = `${progressPercent}%`;
+        progressText.textContent = `${Math.round(progressPercent)}%`;
+    }
+
+    function submitAnswer() {
+        const userInput = gameState.currentAnswer.trim().toLowerCase();
+        if (!userInput) {
+            showMessage("请先输入答案! 📝", 'error');
+            return;
+        }
+
+        let targetQuestion = null;
+        let targetIndex = -1;
+        let lowestTop = -1;
+
+        gameState.fallingQuestions.forEach((qEl, index) => {
+            if (qEl.dataset.processed === "false") {
+                const top = parseFloat(qEl.style.top) || 0;
+                if (top > lowestTop) {
+                    lowestTop = top;
+                    targetQuestion = qEl;
+                    targetIndex = index;
+                }
+            }
+        });
+
+        if (targetQuestion) {
+            const correctAnswer = targetQuestion.dataset.answer;
+            const isCorrect = userInput === correctAnswer;
+            
+            if (isCorrect) {
+                gameState.correctAnswers++;
+                soundManager.playCorrectSound();
+                
+                // 显示正确按键效果
+                if (gameState.subject === 'math') {
+                    document.querySelectorAll('.keyboard-key').forEach(key => {
+                        if (key.textContent === gameState.currentAnswer) {
+                            key.classList.add('correct');
+                        }
+                    });
+                } else {
+                    document.querySelectorAll('.keyboard-key').forEach(key => {
+                        if (key.dataset.answer === correctAnswer) {
+                            key.classList.add('correct');
+                        }
+                    });
+                }
+                
+                const rect = targetQuestion.getBoundingClientRect();
+                const areaRect = fallingGameArea.getBoundingClientRect();
+                const explosionX = rect.left - areaRect.left + rect.width / 2;
+                const explosionY = rect.top - areaRect.top + rect.height / 2;
+                const explosion = createExplosionElement(explosionX, explosionY, true);
+                fallingGameArea.appendChild(explosion);
+                
+                setTimeout(() => {
+                    if (explosion.parentNode) {
+                        explosion.remove();
+                    }
+                }, 600);
+
+                targetQuestion.dataset.processed = "true";
+                targetQuestion.remove();
+                gameState.fallingQuestions.splice(targetIndex, 1);
+                updateStats();
+                
+                const encouragements = ["太棒了! 🎉", "答对了! ⭐", "很厉害! 👏", "继续加油! 💪", "真聪明! 🧠"];
+                const randomEncouragement = encouragements[Math.floor(Math.random() * encouragements.length)];
+                FeedbackManager.showTopFeedback(randomEncouragement, 'success');
+                
+            } else {
+                soundManager.playWrongSound();
+                
+                // 显示错误按键效果
+                if (gameState.subject === 'math') {
+                    document.querySelectorAll('.keyboard-key').forEach(key => {
+                        if (key.textContent === gameState.currentAnswer) {
+                            key.classList.add('wrong');
+                        }
+                    });
+                } else {
+                    document.querySelectorAll('.keyboard-key').forEach(key => {
+                        if (key.dataset.answer === userInput) {
+                            key.classList.add('wrong');
+                        }
+                    });
+                }
+                
+                const sadMessages = ["再试试看! 🤔", "加油，你可以的! 💪", "没关系，继续努力! 😊"];
+                const randomSadMessage = sadMessages[Math.floor(Math.random() * sadMessages.length)];
+                showMessage(`${randomSadMessage} 正确答案: ${correctAnswer}`, 'error');
+            }
+        } else {
+            showMessage("没有可回答的题目 🤷‍♀️", 'info');
+        }
+        
+        // 清空当前答案并重置样式
+        setTimeout(() => {
+            clearAnswer();
+        }, 1000);
+    }
+
+    function gameLoop() {
+        if (gameState.gamePaused || !gameState.gameActive) return;
+
+        // 生成新题目逻辑
+        if (gameState.currentQuestionIndex < gameState.totalQuestions) {
+            const diffConfig = gameData[gameState.subject][gameState.difficulty];
+            if (Math.random() < diffConfig.generateFreq) {
+                let newQuestionObj;
+                if (gameState.subject === 'math') {
+                    newQuestionObj = generateMathQuestion(diffConfig);
+                } else {
+                    newQuestionObj = generateWordQuestion(diffConfig);
+                }
+                const questionEl = createFallingQuestionElement(newQuestionObj);
+                fallingGameArea.appendChild(questionEl);
+                gameState.fallingQuestions.push(questionEl);
+                gameState.currentQuestionIndex++;
+                updateStats();
+            }
+        }
+
+        // 移动所有未被处理的下落题目
+        const speed = gameData[gameState.subject][gameState.difficulty].speed;
+        for (let i = gameState.fallingQuestions.length - 1; i >= 0; i--) {
+            const qEl = gameState.fallingQuestions[i];
+            if (qEl.dataset.processed === "false") {
+                const currentTop = parseFloat(qEl.style.top) || 0;
+                const newTop = currentTop + speed;
+                qEl.style.top = `${newTop}px`;
+
+                // 检查是否落地
+                if (newTop > gameState.gameAreaHeight) {
+                    gameState.wrongAnswers++;
+                    soundManager.playWrongSound();
+                    
+                    // 显示落地效果
+                    const rect = qEl.getBoundingClientRect();
+                    const areaRect = fallingGameArea.getBoundingClientRect();
+                    const explosionX = rect.left - areaRect.left + rect.width / 2;
+                    const explosionY = gameState.gameAreaHeight - 30;
+                    const explosion = createExplosionElement(explosionX, explosionY, false);
+                    fallingGameArea.appendChild(explosion);
+                    
+                    setTimeout(() => {
+                        if (explosion.parentNode) {
+                            explosion.remove();
+                        }
+                    }, 600);
+                    
+                    FeedbackManager.showTopFeedback(`错过了: ${qEl.textContent}`, 'error');
+                    qEl.dataset.processed = "true";
+                    qEl.remove();
+                    gameState.fallingQuestions.splice(i, 1);
+                    updateStats();
+                }
+            }
+        }
+
+        // 检查游戏结束条件
+        if (gameState.currentQuestionIndex >= gameState.totalQuestions && 
+            gameState.fallingQuestions.filter(q => q.dataset.processed === "false").length === 0) {
+            endGame();
+            return;
+        }
+
+        gameState.animationId = requestAnimationFrame(gameLoop);
+    }
+
+    function startGame() {
+        // 重置游戏状态
+        gameState.subject = subjectSelect.value;
+        gameState.difficulty = difficultySelect.value;
+        gameState.totalQuestions = parseInt(questionCountInput.value) || 10;
+        gameState.totalQuestions = Math.max(5, Math.min(50, gameState.totalQuestions));
+        gameState.currentQuestionIndex = 0;
+        gameState.correctAnswers = 0;
+        gameState.wrongAnswers = 0;
+        gameState.unansweredQuestions = gameState.totalQuestions;
+        gameState.gameActive = true;
+        gameState.gamePaused = false;
+        gameState.fallingQuestions = [];
+        gameState.currentAnswer = '';
+
+        // 清空游戏区域和消息
+        fallingGameArea.innerHTML = '';
+        messageEl.textContent = '';
+        messageEl.className = 'message';
+        clearAnswer();
+
+        // 生成对应的键盘
+        if (gameState.subject === 'math') {
+            generateMathKeyboard();
+        } else {
+            const diffConfig = gameData[gameState.subject][gameState.difficulty];
+            generateWordKeyboard(diffConfig.words);
+        }
+
+        // 更新UI
+        setupSection.style.display = 'none';
+        gameSection.style.display = 'block';
+        pauseResumeBtn.innerHTML = '⏸️ 暂停';
+        
+        clearBtn.disabled = false;
+        submitBtn.disabled = false;
+        voiceBtn.disabled = false;
+
+        gameState.gameAreaHeight = fallingGameArea.clientHeight;
+        gameState.gameAreaWidth = fallingGameArea.clientWidth;
+
+        updateStats();
+        
+        if (gameState.animationId) {
+            cancelAnimationFrame(gameState.animationId);
+        }
+        
+        // 显示开始提示
+        FeedbackManager.showTopFeedback('游戏开始! 🚀', 'success');
+        gameLoop();
+    }
+
+    function pauseGame() {
+        gameState.gamePaused = true;
+        pauseResumeBtn.innerHTML = '▶️ 继续';
+        clearBtn.disabled = true;
+        submitBtn.disabled = true;
+        stopListening();
+        voiceBtn.disabled = true;
+        
+        // 禁用键盘
+        document.querySelectorAll('.keyboard-key').forEach(key => {
+            key.disabled = true;
+        });
+        
+        cancelAnimationFrame(gameState.animationId);
+        showMessage("游戏已暂停 ⏸️", 'info');
+    }
+
+    function resumeGame() {
+        gameState.gamePaused = false;
+        pauseResumeBtn.innerHTML = '⏸️ 暂停';
+        clearBtn.disabled = false;
+        submitBtn.disabled = false;
+        voiceBtn.disabled = false;
+        
+        // 启用键盘
+        document.querySelectorAll('.keyboard-key').forEach(key => {
+            key.disabled = false;
+        });
+        
+        showMessage("游戏继续! 🎮", 'success');
+        gameLoop();
+    }
+
+    function endGame() {
+        gameState.gameActive = false;
+        gameState.gamePaused = true;
+        cancelAnimationFrame(gameState.animationId);
+        clearBtn.disabled = true;
+        submitBtn.disabled = true;
+        stopListening();
+        voiceBtn.disabled = true;
+        
+        // 禁用键盘
+        document.querySelectorAll('.keyboard-key').forEach(key => {
+            key.disabled = true;
+        });
+        
+        updateStats();
+        const totalAnswered = gameState.correctAnswers + gameState.wrongAnswers;
+        const finalUnanswered = gameState.totalQuestions - totalAnswered;
+        unansweredCountEl.textContent = finalUnanswered;
+
+        soundManager.playGameEndSound();
+        
+        const accuracy = totalAnswered > 0 ? Math.round((gameState.correctAnswers / totalAnswered) * 100) : 0;
+        let performance = '';
+        if (accuracy >= 90) performance = '🏆 太棒了！';
+        else if (accuracy >= 70) performance = '👍 很不错！';
+        else if (accuracy >= 50) performance = '💪 继续努力！';
+        else performance = '🌟 加油练习！';
+        
+        const gameOverMsg = `🎉 游戏结束！${performance}\n\n📊 成绩统计：\n总题数: ${gameState.totalQuestions}\n✅ 答对: ${gameState.correctAnswers}\n❌ 答错: ${gameState.wrongAnswers}\n⏳ 未答: ${finalUnanswered}\n🎯 准确率: ${accuracy}%`;
+        
+        setTimeout(() => {
+            alert(gameOverMsg);
+            setupSection.style.display = 'block';
+            gameSection.style.display = 'none';
+        }, 500);
+    }
+
+    // --- 事件监听器 ---
+    startGameBtn.addEventListener('click', startGame);
+
+    clearBtn.addEventListener('click', clearAnswer);
+    submitBtn.addEventListener('click', submitAnswer);
+
+    voiceBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        if (isListening) {
+            stopListening();
+        } else {
+            startListening();
+        }
+    });
+
+    pauseResumeBtn.addEventListener('click', () => {
+        if (gameState.gamePaused) {
+            resumeGame();
+        } else {
+            pauseGame();
+        }
+    });
+
+    endGameBtn.addEventListener('click', () => {
+        if (confirm('确定要结束当前游戏吗？ 🤔')) {
+            endGame();
+        }
+    });
+
+    difficultySelect.addEventListener('change', () => {
+        const diff = difficultySelect.value;
+        const infoMap = {
+            'easy': '速度: 超慢速 | 题目难度: 简单',
+            'medium': '速度: 慢速 | 题目难度: 中等',
+            'hard': '速度: 适中速度 | 题目难度: 困难'
+        };
+        difficultyInfo.textContent = infoMap[diff] || '';
+    });
+
+    // 防止页面滚动和缩放
+    document.addEventListener('touchmove', function(e) {
+        e.preventDefault();
+    }, { passive: false });
+
+    // 阻止双击缩放
+    let lastTouchEnd = 0;
+    document.addEventListener('touchend', function(e) {
+        const now = (new Date()).getTime();
+        if (now - lastTouchEnd <= 300) {
+            e.preventDefault();
+        }
+        lastTouchEnd = now;
+    }, false);
+
+    // 初始化
+    window.addEventListener('load', () => {
+        initSpeechRecognition();
+        difficultySelect.dispatchEvent(new Event('change'));
+        updateAnswerDisplay();
+        
+        // 预热音频上下文
+        document.addEventListener('click', () => {
+            if (soundManager.context && soundManager.context.state === 'suspended') {
+                soundManager.context.resume();
+            }
+        }, { once: true });
+    });
+
+    // 处理页面可见性变化
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden && gameState.gameActive && !gameState.gamePaused) {
+            pauseGame();
+        }
+    });
+</script>
+
+</body>
+</html>
