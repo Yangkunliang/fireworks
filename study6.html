@@ -1,0 +1,1185 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎯 小学一年级学习游戏</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 10px;
+            color: #333;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .title {
+            font-size: 24px;
+            color: #ff6b6b;
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .subject-selector {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .subject-btn {
+            height: 60px;
+            font-size: 16px;
+            font-weight: bold;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: white;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .subject-btn.math {
+            background: linear-gradient(135deg, #74b9ff, #0984e3);
+        }
+
+        .subject-btn.chinese {
+            background: linear-gradient(135deg, #fd79a8, #e84393);
+        }
+
+        .subject-btn.english {
+            background: linear-gradient(135deg, #55efc4, #00b894);
+        }
+
+        .subject-btn.active {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .difficulty-selector {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .difficulty-btn {
+            height: 50px;
+            font-size: 14px;
+            font-weight: bold;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: white;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .difficulty-btn.easy {
+            background: linear-gradient(135deg, #55efc4, #00b894);
+        }
+
+        .difficulty-btn.medium {
+            background: linear-gradient(135deg, #fdcb6e, #e17055);
+        }
+
+        .difficulty-btn.hard {
+            background: linear-gradient(135deg, #fd79a8, #e84393);
+        }
+
+        .difficulty-btn.active {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .stats-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #ffeaa7, #fab1a0);
+            border-radius: 15px;
+            padding: 15px;
+            text-align: center;
+            border: 3px solid #fff;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-card.correct {
+            background: linear-gradient(135deg, #55efc4, #00b894);
+        }
+
+        .stat-card.incorrect {
+            background: linear-gradient(135deg, #fd79a8, #e84393);
+        }
+
+        .stat-number {
+            font-size: 32px;
+            font-weight: bold;
+            color: #fff;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: #fff;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+
+        .question-container {
+            background: linear-gradient(135deg, #a8e6cf, #88d8c0);
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 20px;
+            text-align: center;
+            border: 4px solid #fff;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .question {
+            font-size: 32px;
+            font-weight: bold;
+            color: #2d3436;
+            margin-bottom: 20px;
+            text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.5);
+        }
+
+        .input-container {
+            margin-bottom: 20px;
+        }
+
+        .answer-input {
+            width: 120px;
+            height: 60px;
+            font-size: 28px;
+            font-weight: bold;
+            text-align: center;
+            border: 4px solid #74b9ff;
+            border-radius: 15px;
+            background: #fff;
+            color: #2d3436;
+            box-shadow: inset 0 3px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .answer-input:focus {
+            outline: none;
+            border-color: #0984e3;
+            box-shadow: 0 0 20px rgba(116, 185, 255, 0.5);
+            transform: scale(1.05);
+            transition: all 0.3s ease;
+        }
+
+        /* 选择题选项 */
+        .options-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .option-btn {
+            height: 60px;
+            font-size: 18px;
+            font-weight: bold;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: linear-gradient(135deg, #ddd6fe, #c4b5fd);
+            color: #2d3436;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 10px;
+        }
+
+        .option-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 7px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .option-btn:active {
+            transform: translateY(0);
+        }
+
+        .option-btn.selected {
+            background: linear-gradient(135deg, #74b9ff, #0984e3);
+            color: white;
+            transform: scale(1.05);
+        }
+
+        .option-btn.correct {
+            background: linear-gradient(135deg, #55efc4, #00b894);
+            color: white;
+            animation: correctPulse 0.6s ease;
+        }
+
+        .option-btn.incorrect {
+            background: linear-gradient(135deg, #fd79a8, #e84393);
+            color: white;
+            animation: incorrectShake 0.6s ease;
+        }
+
+        @keyframes correctPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        @keyframes incorrectShake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .button-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            height: 60px;
+            font-size: 18px;
+            font-weight: bold;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:active {
+            transform: translateY(2px);
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-submit {
+            background: linear-gradient(135deg, #00b894, #00a085);
+            color: white;
+        }
+
+        .btn-submit:hover {
+            background: linear-gradient(135deg, #00a085, #008f7a);
+            transform: translateY(-2px);
+        }
+
+        .btn-next {
+            background: linear-gradient(135deg, #74b9ff, #0984e3);
+            color: white;
+        }
+
+        .btn-next:hover {
+            background: linear-gradient(135deg, #0984e3, #0770c4);
+            transform: translateY(-2px);
+        }
+
+        .controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .btn-control {
+            height: 50px;
+            font-size: 16px;
+            font-weight: bold;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: linear-gradient(135deg, #fd79a8, #fdcb6e);
+            color: white;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .btn-control:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
+        }
+
+        .feedback {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 15px;
+            font-size: 18px;
+            font-weight: bold;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .feedback.correct {
+            background: linear-gradient(135deg, #55efc4, #00b894);
+            color: white;
+            border: 3px solid #00a085;
+        }
+
+        .feedback.incorrect {
+            background: linear-gradient(135deg, #fd79a8, #e84393);
+            color: white;
+            border: 3px solid #d63384;
+        }
+
+        .ready-message {
+            background: linear-gradient(135deg, #ffeaa7, #fdcb6e);
+            color: #2d3436;
+            border: 3px solid #e17055;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+
+        .celebration {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 80px;
+            z-index: 1000;
+            animation: celebrate 0.8s ease-out;
+            pointer-events: none;
+        }
+
+        @keyframes celebrate {
+            0% { 
+                transform: translate(-50%, -50%) scale(0) rotate(0deg);
+                opacity: 1;
+            }
+            50% { 
+                transform: translate(-50%, -50%) scale(1.2) rotate(180deg);
+                opacity: 1;
+            }
+            100% { 
+                transform: translate(-50%, -50%) scale(1) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        .streak-indicator {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: linear-gradient(135deg, #ff9ff3, #f368e0);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        /* 隐藏数学输入框 */
+        .math-mode .options-container {
+            display: none;
+        }
+
+        .choice-mode .input-container {
+            display: none;
+        }
+
+        .choice-mode .button-container {
+            display: none;
+        }
+
+        /* 响应式优化 */
+        @media (max-width: 480px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .question {
+                font-size: 28px;
+            }
+            
+            .answer-input {
+                width: 100px;
+                height: 55px;
+                font-size: 24px;
+            }
+            
+            .btn, .option-btn {
+                height: 55px;
+                font-size: 16px;
+            }
+
+            .difficulty-btn, .subject-btn {
+                height: 45px;
+                font-size: 13px;
+            }
+
+            .subject-btn {
+                height: 55px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 class="title">🎯 小学一年级学习游戏</h1>
+        </div>
+
+        <div class="subject-selector">
+            <button class="subject-btn math active" data-subject="math">
+                🔢<br>数学计算
+            </button>
+            <button class="subject-btn chinese" data-subject="chinese">
+                📚<br>语文识字
+            </button>
+            <button class="subject-btn english" data-subject="english">
+                🌍<br>英语单词
+            </button>
+        </div>
+
+        <div class="difficulty-selector">
+            <button class="difficulty-btn easy active" data-difficulty="easy">
+                🟢 简单<br><span id="difficultyDesc">50以内</span>
+            </button>
+            <button class="difficulty-btn medium" data-difficulty="medium">
+                🟡 中等<br><span id="difficultyDesc2">100以内</span>
+            </button>
+            <button class="difficulty-btn hard" data-difficulty="hard">
+                🔴 困难<br><span id="difficultyDesc3">1000以内</span>
+            </button>
+        </div>
+
+        <div class="stats-container">
+            <div class="stat-card">
+                <div class="stat-number" id="totalCount">0</div>
+                <div class="stat-label">📊 总题数</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="unansweredCount">0</div>
+                <div class="stat-label">⏳ 未答</div>
+            </div>
+            <div class="stat-card correct">
+                <div class="stat-number" id="correctCount">0</div>
+                <div class="stat-label">✅ 答对</div>
+            </div>
+            <div class="stat-card incorrect">
+                <div class="stat-number" id="incorrectCount">0</div>
+                <div class="stat-label">❌ 答错</div>
+            </div>
+        </div>
+
+        <div class="question-container" id="questionContainer">
+            <div class="streak-indicator" id="streakIndicator" style="display: none;">
+                🔥 连对 <span id="streakCount">0</span> 题
+            </div>
+            <div class="question" id="question">选择科目和难度，然后开始练习吧！</div>
+            
+            <!-- 数学模式的输入框 -->
+            <div class="input-container">
+                <input type="number" id="answerInput" class="answer-input" placeholder="?" disabled>
+            </div>
+
+            <!-- 选择题模式的选项 -->
+            <div class="options-container" id="optionsContainer">
+                <button class="option-btn" data-option="0"></button>
+                <button class="option-btn" data-option="1"></button>
+                <button class="option-btn" data-option="2"></button>
+                <button class="option-btn" data-option="3"></button>
+            </div>
+
+            <div class="button-container">
+                <button id="submitBtn" class="btn btn-submit" disabled>🎯 提交答案</button>
+                <button id="nextBtn" class="btn btn-next" disabled>➡️ 下一题</button>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button id="startBtn" class="btn-control">🚀 开始练习</button>
+            <button id="resetBtn" class="btn-control">🔄 重新开始</button>
+        </div>
+
+        <div id="feedback" class="feedback ready-message">
+            选择科目和难度，然后点击"开始练习"吧！💪
+        </div>
+    </div>
+
+    <script>
+        class LearningGame {
+            constructor() {
+                this.questions = [];
+                this.currentIndex = 0;
+                this.stats = {
+                    correct: 0,
+                    incorrect: 0,
+                    total: 0,
+                    unanswered: 0,
+                    streak: 0,
+                    maxStreak: 0
+                };
+                this.isGameActive = false;
+                this.currentDifficulty = 'easy';
+                this.currentSubject = 'math';
+                this.selectedOption = null;
+                this.autoNextTimeout = null;
+                this.initElements();
+                this.bindEvents();
+                this.generateQuestions();
+                this.updateStats();
+                this.updateDifficultyDescriptions();
+                this.updateGameMode();
+                this.initAudio();
+            }
+
+            initElements() {
+                this.questionEl = document.getElementById('question');
+                this.answerInput = document.getElementById('answerInput');
+                this.submitBtn = document.getElementById('submitBtn');
+                this.nextBtn = document.getElementById('nextBtn');
+                this.startBtn = document.getElementById('startBtn');
+                this.resetBtn = document.getElementById('resetBtn');
+                this.feedback = document.getElementById('feedback');
+                this.totalCountEl = document.getElementById('totalCount');
+                this.correctCountEl = document.getElementById('correctCount');
+                this.incorrectCountEl = document.getElementById('incorrectCount');
+                this.unansweredCountEl = document.getElementById('unansweredCount');
+                this.streakIndicator = document.getElementById('streakIndicator');
+                this.streakCountEl = document.getElementById('streakCount');
+                this.questionContainer = document.getElementById('questionContainer');
+                this.optionsContainer = document.getElementById('optionsContainer');
+                this.optionBtns = document.querySelectorAll('.option-btn');
+            }
+
+            initAudio() {
+                this.audioContext = null;
+                this.initAudioContext = () => {
+                    if (!this.audioContext) {
+                        this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    }
+                };
+            }
+
+            playSound(frequency, duration, type = 'success') {
+                if (!this.audioContext) return;
+                
+                const oscillator = this.audioContext.createOscillator();
+                const gainNode = this.audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(this.audioContext.destination);
+                
+                if (type === 'success') {
+                    oscillator.frequency.setValueAtTime(frequency, this.audioContext.currentTime);
+                    oscillator.frequency.exponentialRampToValueAtTime(frequency * 1.5, this.audioContext.currentTime + duration);
+                } else {
+                    oscillator.frequency.setValueAtTime(frequency * 0.7, this.audioContext.currentTime);
+                }
+                
+                oscillator.type = 'sine';
+                gainNode.gain.setValueAtTime(0.3, this.audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + duration);
+                
+                oscillator.start(this.audioContext.currentTime);
+                oscillator.stop(this.audioContext.currentTime + duration);
+            }
+
+            bindEvents() {
+                this.submitBtn.addEventListener('click', () => {
+                    this.initAudioContext();
+                    this.submitAnswer();
+                });
+                this.nextBtn.addEventListener('click', () => this.nextQuestion());
+                this.startBtn.addEventListener('click', () => {
+                    this.initAudioContext();
+                    this.startGame();
+                });
+                this.resetBtn.addEventListener('click', () => this.resetGame());
+                
+                // 科目选择
+                document.querySelectorAll('.subject-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        document.querySelectorAll('.subject-btn').forEach(b => b.classList.remove('active'));
+                        btn.classList.add('active');
+                        this.currentSubject = btn.dataset.subject;
+                        this.generateQuestions();
+                        this.updateStats();
+                        this.updateDifficultyDescriptions();
+                        this.updateGameMode();
+                    });
+                });
+
+                // 难度选择
+                document.querySelectorAll('.difficulty-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        document.querySelectorAll('.difficulty-btn').forEach(b => b.classList.remove('active'));
+                        btn.classList.add('active');
+                        this.currentDifficulty = btn.dataset.difficulty;
+                        this.generateQuestions();
+                        this.updateStats();
+                    });
+                });
+
+                // 选项按钮
+                this.optionBtns.forEach((btn, index) => {
+                    btn.addEventListener('click', () => {
+                        this.selectOption(index);
+                    });
+                });
+                
+                this.answerInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter' && !this.submitBtn.disabled) {
+                        this.initAudioContext();
+                        this.submitAnswer();
+                    }
+                });
+            }
+
+            updateGameMode() {
+                if (this.currentSubject === 'math') {
+                    this.questionContainer.className = 'question-container math-mode';
+                } else {
+                    this.questionContainer.className = 'question-container choice-mode';
+                }
+            }
+
+            updateDifficultyDescriptions() {
+                const descriptions = {
+                    math: {
+                        easy: '50以内',
+                        medium: '100以内',
+                        hard: '1000以内'
+                    },
+                    chinese: {
+                        easy: '基础字',
+                        medium: '常用字',
+                        hard: '复杂字'
+                    },
+                    english: {
+                        easy: '简单词',
+                        medium: '常用词',
+                        hard: '进阶词'
+                    }
+                };
+
+                document.getElementById('difficultyDesc').textContent = descriptions[this.currentSubject].easy;
+                document.getElementById('difficultyDesc2').textContent = descriptions[this.currentSubject].medium;
+                document.getElementById('difficultyDesc3').textContent = descriptions[this.currentSubject].hard;
+            }
+
+            selectOption(index) {
+                // 清除之前的选择
+                this.optionBtns.forEach(btn => btn.classList.remove('selected'));
+                
+                // 选择当前选项
+                this.optionBtns[index].classList.add('selected');
+                this.selectedOption = index;
+                
+                // 自动提交答案（500毫秒延迟）
+                if (this.autoNextTimeout) {
+                    clearTimeout(this.autoNextTimeout);
+                }
+                
+                this.autoNextTimeout = setTimeout(() => {
+                    this.submitAnswer();
+                }, 500);
+            }
+
+            generateQuestions() {
+                this.questions = [];
+                
+                if (this.currentSubject === 'math') {
+                    this.generateMathQuestions();
+                } else if (this.currentSubject === 'chinese') {
+                    this.generateChineseQuestions();
+                } else {
+                    this.generateEnglishQuestions();
+                }
+                
+                // 打乱顺序
+                for (let i = this.questions.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [this.questions[i], this.questions[j]] = [this.questions[j], this.questions[i]];
+                }
+                
+                this.stats.total = this.questions.length;
+                this.stats.unanswered = this.questions.length;
+            }
+
+            generateMathQuestions() {
+                let maxNum, questionCount;
+                
+                switch (this.currentDifficulty) {
+                    case 'easy':
+                        maxNum = 50;
+                        questionCount = 20;
+                        break;
+                    case 'medium':
+                        maxNum = 100;
+                        questionCount = 25;
+                        break;
+                    case 'hard':
+                        maxNum = 1000;
+                        questionCount = 30;
+                        break;
+                }
+                
+                // 生成加法题
+                for (let i = 0; i < questionCount / 2; i++) {
+                    const a = Math.floor(Math.random() * maxNum) + 1;
+                    const b = Math.floor(Math.random() * (maxNum - a)) + 1;
+                    this.questions.push({
+                        question: `${a} + ${b} = `,
+                        answer: a + b,
+                        type: 'input',
+                        answered: false,
+                        correct: null
+                    });
+                }
+                
+                // 生成减法题
+                for (let i = 0; i < questionCount / 2; i++) {
+                    const a = Math.floor(Math.random() * maxNum) + 2;
+                    const b = Math.floor(Math.random() * a) + 1;
+                    this.questions.push({
+                        question: `${a} - ${b} = `,
+                        answer: a - b,
+                        type: 'input',
+                        answered: false,
+                        correct: null
+                    });
+                }
+            }
+
+            generateChineseQuestions() {
+                const characterSets = {
+                    easy: [
+                        {char: '一', pinyin: 'yī'}, {char: '二', pinyin: 'èr'}, {char: '三', pinyin: 'sān'},
+                        {char: '四', pinyin: 'sì'}, {char: '五', pinyin: 'wǔ'}, {char: '六', pinyin: 'liù'},
+                        {char: '七', pinyin: 'qī'}, {char: '八', pinyin: 'bā'}, {char: '九', pinyin: 'jiǔ'},
+                        {char: '十', pinyin: 'shí'}, {char: '大', pinyin: 'dà'}, {char: '小', pinyin: 'xiǎo'},
+                        {char: '人', pinyin: 'rén'}, {char: '口', pinyin: 'kǒu'}, {char: '手', pinyin: 'shǒu'}
+                    ],
+                    medium: [
+                        {char: '学', pinyin: 'xué'}, {char: '校', pinyin: 'xiào'}, {char: '老', pinyin: 'lǎo'},
+                        {char: '师', pinyin: 'shī'}, {char: '同', pinyin: 'tóng'}, {char: '学', pinyin: 'xué'},
+                        {char: '朋', pinyin: 'péng'}, {char: '友', pinyin: 'yǒu'}, {char: '家', pinyin: 'jiā'},
+                        {char: '爸', pinyin: 'bà'}, {char: '妈', pinyin: 'mā'}, {char: '哥', pinyin: 'gē'},
+                        {char: '姐', pinyin: 'jiě'}, {char: '弟', pinyin: 'dì'}, {char: '妹', pinyin: 'mèi'}
+                    ],
+                    hard: [
+                        {char: '漂', pinyin: 'piào'}, {char: '亮', pinyin: 'liàng'}, {char: '聪', pinyin: 'cōng'},
+                        {char: '明', pinyin: 'míng'}, {char: '勇', pinyin: 'yǒng'}, {char: '敢', pinyin: 'gǎn'},
+                        {char: '温', pinyin: 'wēn'}, {char: '柔', pinyin: 'róu'}, {char: '善', pinyin: 'shàn'},
+                        {char: '良', pinyin: 'liáng'}, {char: '诚', pinyin: 'chéng'}, {char: '实', pinyin: 'shí'},
+                        {char: '努', pinyin: 'nǔ'}, {char: '力', pinyin: 'lì'}, {char: '进', pinyin: 'jìn'}
+                    ]
+                };
+
+                const characters = characterSets[this.currentDifficulty];
+                const questionCount = this.currentDifficulty === 'easy' ? 15 : 
+                                     this.currentDifficulty === 'medium' ? 20 : 25;
+
+                for (let i = 0; i < questionCount; i++) {
+                    const randomChar = characters[Math.floor(Math.random() * characters.length)];
+                    const otherChars = characters.filter(c => c !== randomChar);
+                    
+                    if (Math.random() > 0.5) {
+                        // 看汉字选拼音
+                        const options = [randomChar.pinyin];
+                        while (options.length < 4) {
+                            const randomOther = otherChars[Math.floor(Math.random() * otherChars.length)];
+                            if (!options.includes(randomOther.pinyin)) {
+                                options.push(randomOther.pinyin);
+                            }
+                        }
+                        this.shuffleArray(options);
+                        
+                        this.questions.push({
+                            question: `"${randomChar.char}" 的拼音是？`,
+                            answer: randomChar.pinyin,
+                            options: options,
+                            correctIndex: options.indexOf(randomChar.pinyin),
+                            type: 'choice',
+                            answered: false,
+                            correct: null
+                        });
+                    } else {
+                        // 看拼音选汉字
+                        const options = [randomChar.char];
+                        while (options.length < 4) {
+                            const randomOther = otherChars[Math.floor(Math.random() * otherChars.length)];
+                            if (!options.includes(randomOther.char)) {
+                                options.push(randomOther.char);
+                            }
+                        }
+                        this.shuffleArray(options);
+                        
+                        this.questions.push({
+                            question: `拼音 "${randomChar.pinyin}" 对应的汉字是？`,
+                            answer: randomChar.char,
+                            options: options,
+                            correctIndex: options.indexOf(randomChar.char),
+                            type: 'choice',
+                            answered: false,
+                            correct: null
+                        });
+                    }
+                }
+            }
+
+            generateEnglishQuestions() {
+                const wordSets = {
+                    easy: [
+                        {english: 'cat', chinese: '猫'}, {english: 'dog', chinese: '狗'}, {english: 'book', chinese: '书'},
+                        {english: 'pen', chinese: '笔'}, {english: 'apple', chinese: '苹果'}, {english: 'water', chinese: '水'},
+                        {english: 'milk', chinese: '牛奶'}, {english: 'bread', chinese: '面包'}, {english: 'fish', chinese: '鱼'},
+                        {english: 'bird', chinese: '鸟'}, {english: 'tree', chinese: '树'}, {english: 'flower', chinese: '花'},
+                        {english: 'sun', chinese: '太阳'}, {english: 'moon', chinese: '月亮'}, {english: 'star', chinese: '星星'}
+                    ],
+                    medium: [
+                        {english: 'school', chinese: '学校'}, {english: 'teacher', chinese: '老师'}, {english: 'student', chinese: '学生'},
+                        {english: 'family', chinese: '家庭'}, {english: 'mother', chinese: '妈妈'}, {english: 'father', chinese: '爸爸'},
+                        {english: 'friend', chinese: '朋友'}, {english: 'happy', chinese: '快乐'}, {english: 'beautiful', chinese: '美丽'},
+                        {english: 'smart', chinese: '聪明'}, {english: 'kind', chinese: '善良'}, {english: 'brave', chinese: '勇敢'},
+                        {english: 'strong', chinese: '强壮'}, {english: 'fast', chinese: '快速'}, {english: 'slow', chinese: '缓慢'}
+                    ],
+                    hard: [
+                        {english: 'rainbow', chinese: '彩虹'}, {english: 'butterfly', chinese: '蝴蝶'}, {english: 'elephant', chinese: '大象'},
+                        {english: 'mountain', chinese: '山'}, {english: 'ocean', chinese: '海洋'}, {english: 'forest', chinese: '森林'},
+                        {english: 'adventure', chinese: '冒险'}, {english: 'wonderful', chinese: '精彩'}, {english: 'imagination', chinese: '想象'},
+                        {english: 'discovery', chinese: '发现'}, {english: 'treasure', chinese: '宝藏'}, {english: 'mystery', chinese: '神秘'},
+                        {english: 'journey', chinese: '旅程'}, {english: 'fantastic', chinese: '奇妙'}, {english: 'magical', chinese: '魔法'}
+                    ]
+                };
+
+                const words = wordSets[this.currentDifficulty];
+                const questionCount = this.currentDifficulty === 'easy' ? 15 : 
+                                     this.currentDifficulty === 'medium' ? 20 : 25;
+
+                for (let i = 0; i < questionCount; i++) {
+                    const randomWord = words[Math.floor(Math.random() * words.length)];
+                    const otherWords = words.filter(w => w !== randomWord);
+                    
+                    if (Math.random() > 0.5) {
+                        // 看英语选中文
+                        const options = [randomWord.chinese];
+                        while (options.length < 4) {
+                            const randomOther = otherWords[Math.floor(Math.random() * otherWords.length)];
+                            if (!options.includes(randomOther.chinese)) {
+                                options.push(randomOther.chinese);
+                            }
+                        }
+                        this.shuffleArray(options);
+                        
+                        this.questions.push({
+                            question: `"${randomWord.english}" 的中文意思是？`,
+                            answer: randomWord.chinese,
+                            options: options,
+                            correctIndex: options.indexOf(randomWord.chinese),
+                            type: 'choice',
+                            answered: false,
+                            correct: null
+                        });
+                    } else {
+                        // 看中文选英语
+                        const options = [randomWord.english];
+                        while (options.length < 4) {
+                            const randomOther = otherWords[Math.floor(Math.random() * otherWords.length)];
+                            if (!options.includes(randomOther.english)) {
+                                options.push(randomOther.english);
+                            }
+                        }
+                        this.shuffleArray(options);
+                        
+                        this.questions.push({
+                            question: `"${randomWord.chinese}" 的英语单词是？`,
+                            answer: randomWord.english,
+                            options: options,
+                            correctIndex: options.indexOf(randomWord.english),
+                            type: 'choice',
+                            answered: false,
+                            correct: null
+                        });
+                    }
+                }
+            }
+
+            shuffleArray(array) {
+                for (let i = array.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [array[i], array[j]] = [array[j], array[i]];
+                }
+            }
+
+            startGame() {
+                this.isGameActive = true;
+                this.currentIndex = 0;
+                this.stats.streak = 0;
+                this.selectedOption = null;
+                
+                if (this.currentSubject === 'math') {
+                    this.answerInput.disabled = false;
+                    this.submitBtn.disabled = false;
+                } else {
+                    this.resetOptionButtons();
+                }
+                
+                this.startBtn.textContent = '⏸️ 暂停';
+                this.showCurrentQuestion();
+                
+                if (this.currentSubject === 'math') {
+                    this.answerInput.focus();
+                }
+            }
+
+            showCurrentQuestion() {
+                if (this.currentIndex < this.questions.length) {
+                    const current = this.questions[this.currentIndex];
+                    this.questionEl.textContent = current.question;
+                    
+                    if (current.type === 'input') {
+                        this.answerInput.value = '';
+                        this.nextBtn.disabled = true;
+                        this.submitBtn.disabled = false;
+                    } else {
+                        // 选择题模式
+                        this.resetOptionButtons();
+                        current.options.forEach((option, index) => {
+                            this.optionBtns[index].textContent = option;
+                        });
+                        this.selectedOption = null;
+                    }
+                    
+                    this.feedback.className = 'feedback';
+                    this.feedback.textContent = this.currentSubject === 'math' ? '请输入答案 🤔' : '请选择答案 🤔';
+                    
+                    // 清除自动下一题的定时器
+                    if (this.autoNextTimeout) {
+                        clearTimeout(this.autoNextTimeout);
+                        this.autoNextTimeout = null;
+                    }
+                } else {
+                    this.endGame();
+                }
+            }
+
+            resetOptionButtons() {
+                this.optionBtns.forEach(btn => {
+                    btn.classList.remove('selected', 'correct', 'incorrect');
+                    btn.disabled = false;
+                });
+            }
+
+            submitAnswer() {
+                const current = this.questions[this.currentIndex];
+                let userAnswer, isCorrect;
+
+                if (current.type === 'input') {
+                    userAnswer = parseInt(this.answerInput.value);
+                    if (isNaN(userAnswer)) {
+                        this.showFeedback('请输入一个数字！', 'incorrect');
+                        return;
+                    }
+                    isCorrect = userAnswer === current.answer;
+                } else {
+                    if (this.selectedOption === null) {
+                        this.showFeedback('请选择一个答案！', 'incorrect');
+                        return;
+                    }
+                    isCorrect = this.selectedOption === current.correctIndex;
+                    
+                    // 显示选择题结果
+                    this.optionBtns.forEach((btn, index) => {
+                        btn.disabled = true;
+                        if (index === current.correctIndex) {
+                            btn.classList.add('correct');
+                        } else if (index === this.selectedOption && !isCorrect) {
+                            btn.classList.add('incorrect');
+                        }
+                    });
+                }
+
+                current.answered = true;
+                this.stats.unanswered--;
+                
+                if (isCorrect) {
+                    current.correct = true;
+                    this.stats.correct++;
+                    this.stats.streak++;
+                    this.stats.maxStreak = Math.max(this.stats.maxStreak, this.stats.streak);
+                    
+                    const encouragement = this.getEncouragement();
+                    this.showFeedback(`🎉 ${encouragement}`, 'correct');
+                    this.showCelebration();
+                    this.playSound(523.25, 0.3, 'success');
+                    
+                    // 500毫秒后自动下一题
+                    this.autoNextTimeout = setTimeout(() => {
+                        this.nextQuestion();
+                    }, 500);
+                } else {
+                    current.correct = false;
+                    this.stats.incorrect++;
+                    this.stats.streak = 0;
+                    this.showFeedback(`❌ 答错了，正确答案是 ${current.answer}，再接再厉！`, 'incorrect');
+                    this.playSound(196, 0.5, 'error');
+                    
+                    // 错误时延迟更长时间再进入下一题
+                    this.autoNextTimeout = setTimeout(() => {
+                        this.nextQuestion();
+                    }, 1500);
+                }
+
+                if (current.type === 'input') {
+                    this.submitBtn.disabled = true;
+                    this.nextBtn.disabled = false;
+                }
+                
+                this.updateStats();
+                this.updateStreakDisplay();
+            }
+
+            getEncouragement() {
+                const encouragements = [
+                    '太棒了！', '答对了！', '真聪明！', '很棒！', '继续加油！',
+                    '你真厉害！', '完美！', '优秀！', '好样的！', '真不错！'
+                ];
+                return encouragements[Math.floor(Math.random() * encouragements.length)];
+            }
+
+            updateStreakDisplay() {
+                if (this.stats.streak >= 3) {
+                    this.streakIndicator.style.display = 'block';
+                    this.streakCountEl.textContent = this.stats.streak;
+                } else {
+                    this.streakIndicator.style.display = 'none';
+                }
+            }
+
+            nextQuestion() {
+                if (this.autoNextTimeout) {
+                    clearTimeout(this.autoNextTimeout);
+                    this.autoNextTimeout = null;
+                }
+                this.currentIndex++;
+                this.showCurrentQuestion();
+            }
+
+            showFeedback(message, type) {
+                this.feedback.textContent = message;
+                this.feedback.className = `feedback ${type}`;
+            }
+
+            showCelebration() {
+                const emojis = ['🌟', '🎉', '🎊', '⭐', '✨', '🏆', '👏', '🥳'];
+                const celebration = document.createElement('div');
+                celebration.className = 'celebration';
+                celebration.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+                document.body.appendChild(celebration);
+                
+                setTimeout(() => {
+                    if (document.body.contains(celebration)) {
+                        document.body.removeChild(celebration);
+                    }
+                }, 800);
+            }
+
+            updateStats() {
+                this.totalCountEl.textContent = this.stats.total;
+                this.correctCountEl.textContent = this.stats.correct;
+                this.incorrectCountEl.textContent = this.stats.incorrect;
+                this.unansweredCountEl.textContent = this.stats.unanswered;
+            }
+
+            endGame() {
+                this.isGameActive = false;
+                const accuracy = Math.round((this.stats.correct / this.stats.total) * 100);
+                let message = `🎊 游戏结束！\n答对了 ${this.stats.correct} 题，答错了 ${this.stats.incorrect} 题\n正确率：${accuracy}%\n最高连击：${this.stats.maxStreak} 题`;
+                
+                if (accuracy >= 90) {
+                    message += '\n🏆 太厉害了！你是学习小天才！';
+                } else if (accuracy >= 80) {
+                    message += '\n🌟 很棒！继续努力哦！';
+                } else if (accuracy >= 70) {
+                    message += '\n💪 不错！多练习会更好的！';
+                } else {
+                    message += '\n🤗 没关系，多练习就会进步的！';
+                }
+
+                this.feedback.textContent = message;
+                this.feedback.className = 'feedback ready-message';
+                this.questionEl.textContent = '点击重新开始继续练习！';
+                
+                if (this.currentSubject === 'math') {
+                    this.answerInput.disabled = true;
+                    this.submitBtn.disabled = true;
+                    this.nextBtn.disabled = true;
+                } else {
+                    this.optionBtns.forEach(btn => btn.disabled = true);
+                }
+                
+                this.startBtn.textContent = '🚀 开始练习';
+            }
+
+            resetGame() {
+                this.currentIndex = 0;
+                this.stats = { correct: 0, incorrect: 0, total: 0, unanswered: 0, streak: 0, maxStreak: 0 };
+                this.isGameActive = false;
+                this.selectedOption = null;
+                
+                if (this.autoNextTimeout) {
+                    clearTimeout(this.autoNextTimeout);
+                    this.autoNextTimeout = null;
+                }
+                
+                this.generateQuestions();
+                this.updateStats();
+                this.questionEl.textContent = '选择科目和难度，然后开始练习吧！';
+                this.answerInput.value = '';
+                this.answerInput.disabled = true;
+                this.submitBtn.disabled = true;
+                this.nextBtn.disabled = true;
+                this.resetOptionButtons();
+                this.startBtn.textContent = '🚀 开始练习';
+                this.feedback.textContent = '选择科目和难度，然后点击"开始练习"吧！💪';
+                this.feedback.className = 'feedback ready-message';
+                this.streakIndicator.style.display = 'none';
+            }
+        }
+
+        // 启动游戏
+        document.addEventListener('DOMContentLoaded', () => {
+            new LearningGame();
+        });
+    </script>
+</body>
+</html>
