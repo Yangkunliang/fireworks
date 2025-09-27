@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>服务号 - 真实服务，用心记录</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #f8f9fa;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 375px;
+            margin: 0 auto;
+            background: white;
+            min-height: 100vh;
+            position: relative;
+        }
+        
+        /* 状态栏 */
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 20px;
+            background: #fff;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        .status-left {
+            font-size: 16px;
+        }
+        
+        .status-right {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .signal-bars {
+            display: flex;
+            gap: 2px;
+        }
+        
+        .bar {
+            width: 3px;
+            background: #333;
+            border-radius: 1px;
+        }
+        
+        .bar:nth-child(1) { height: 4px; }
+        .bar:nth-child(2) { height: 6px; }
+        .bar:nth-child(3) { height: 8px; }
+        .bar:nth-child(4) { height: 10px; }
+        
+        /* 头部导航 */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            background: white;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .header h1 {
+            font-size: 18px;
+            font-weight: 600;
+        }
+        
+        .rating {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            color: #666;
+            font-size: 14px;
+        }
+        
+        /* 搜索框 */
+        .search-container {
+            padding: 15px 20px;
+            background: white;
+        }
+        
+        .search-box {
+            display: flex;
+            align-items: center;
+            background: #f5f5f5;
+            border-radius: 20px;
+            padding: 10px 15px;
+            gap: 8px;
+        }
+        
+        .search-box input {
+            border: none;
+            background: none;
+            flex: 1;
+            font-size: 14px;
+            color: #999;
+        }
+        
+        .search-box input::placeholder {
+            color: #999;
+        }
+        
+        /* 轮播Banner */
+        .banner-container {
+            margin: 0 20px 20px;
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+            height: 120px;
+        }
+        
+        .banner {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px;
+            color: white;
+            position: relative;
+        }
+        
+        .banner::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 100px;
+            height: 100%;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="80" cy="20" r="2" fill="rgba(255,255,255,0.3)"/><circle cx="90" cy="40" r="1.5" fill="rgba(255,255,255,0.2)"/><circle cx="70" cy="60" r="1" fill="rgba(255,255,255,0.4)"/></svg>');
+        }
+        
+        .banner-content h2 {
+            font-size: 20px;
+            margin-bottom: 5px;
+            font-weight: 700;
+        }
+        
+        .banner-content p {
+            font-size: 13px;
+            opacity: 0.9;
+        }
+        
+        .banner-arrow {
+            font-size: 18px;
+            opacity: 0.8;
+        }
+        
+        /* 导航标签 */
+        .nav-tabs {
+            display: flex;
+            justify-content: space-around;
+            padding: 15px 20px 0;
+            background: white;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .nav-tab {
+            padding: 8px 0;
+            font-size: 15px;
+            color: #666;
+            position: relative;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+        
+        .nav-tab.active {
+            color: #007AFF;
+            font-weight: 600;
+        }
+        
+        .nav-tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 20px;
+            height: 3px;
+            background: #007AFF;
+            border-radius: 2px;
+        }
+        
+        /* 内容网格 */
+        .content-grid {
+            padding: 20px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        
+        .content-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            transition: transform 0.2s, box-shadow 0.2s;
+            cursor: pointer;
+        }
+        
+        .content-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+        }
+        
+        .card-image {
+            position: relative;
+            height: 140px;
+            background-size: cover;
+            background-position: center;
+        }
+        
+        .service-tag {
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            background: rgba(0,122,255,0.9);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        
+        .before-after-tag {
+            position: absolute;
+            bottom: 8px;
+            right: 8px;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 3px 6px;
+            border-radius: 8px;
+            font-size: 10px;
+        }
+        
+        .card-content {
+            padding: 12px;
+        }
+        
+        .card-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 6px;
+            line-height: 1.3;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        
+        .card-meta {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+        
+        .author-info {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .author-avatar {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #FF6B6B, #4ECDC4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 10px;
+            font-weight: 600;
+        }
+        
+        .author-name {
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .service-badge {
+            background: #E8F4FD;
+            color: #007AFF;
+            padding: 2px 6px;
+            border-radius: 8px;
+            font-size: 10px;
+            font-weight: 500;
+        }
+        
+        .card-stats {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #999;
+            font-size: 12px;
+        }
+        
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 3px;
+        }
+        
+        /* 大卡片样式 */
+        .content-card.large {
+            grid-column: 1 / -1;
+        }
+        
+        .content-card.large .card-image {
+            height: 180px;
+        }
+        
+        .content-card.large .card-title {
+            font-size: 16px;
+        }
+        
+        /* 底部导航 */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 375px;
+            background: white;
+            border-top: 1px solid #f0f0f0;
+            padding: 8px 0 20px;
+            display: flex;
+            justify-content: space-around;
+        }
+        
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            color: #999;
+            font-size: 11px;
+            cursor: pointer;
+        }
+        
+        .nav-item.active {
+            color: #007AFF;
+        }
+        
+        .nav-icon {
+            width: 24px;
+            height: 24px;
+            background: currentColor;
+            mask-size: contain;
+            mask-repeat: no-repeat;
+            mask-position: center;
+        }
+        
+        .icon-home { mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='currentColor' viewBox='0 0 24 24'%3E%3Cpath d='M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z'/%3E%3C/svg%3E"); }
+        .icon-discover { mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='currentColor' viewBox='0 0 24 24'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z'/%3E%3C/svg%3E"); }
+        .icon-message { mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='currentColor' viewBox='0 0 24 24'%3E%3Cpath d='M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z'/%3E%3C/svg%3E"); }
+        .icon-profile { mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='currentColor' viewBox='0 0 24 24'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E"); }
+        
+        /* 浮动发布按钮 */
+        .fab {
+            position: fixed;
+            bottom: 80px;
+            right: 20px;
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(135deg, #FF6B6B, #FF8E53);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            font-weight: 300;
+            box-shadow: 0 4px 16px rgba(255, 107, 107, 0.4);
+            cursor: pointer;
+            transition: transform 0.2s;
+            z-index: 100;
+        }
+        
+        .fab:hover {
+            transform: scale(1.1);
+        }
+        
+        /* 话题提示气泡 */
+        .topic-bubble {
+            position: fixed;
+            bottom: 150px;
+            right: 85px;
+            background: #FF6B6B;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 16px;
+            font-size: 12px;
+            white-space: nowrap;
+            opacity: 0;
+            animation: bubble 3s ease-in-out infinite;
+        }
+        
+        .topic-bubble::after {
+            content: '';
+            position: absolute;
+            right: -8px;
+            top: 50%;
+            transform: translateY(-50%);
+            border: 4px solid transparent;
+            border-left-color: #FF6B6B;
+        }
+        
+        
+        /* 发布引导弹窗 */
+        .publish-guide {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .guide-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+        }
+        
+        .guide-content {
+            position: relative;
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            margin: 20px;
+            max-width: 320px;
+            width: 100%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        .guide-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .guide-header h3 {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .close-btn {
+            background: #f0f0f0;
+            border: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: #666;
+            cursor: pointer;
+        }
+        
+        .guide-templates {
+            margin-bottom: 20px;
+        }
+        
+        .template-card {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            border: 1px solid #f0f0f0;
+            border-radius: 12px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .template-card:hover {
+            border-color: #007AFF;
+            background: #f8faff;
+        }
+        
+        .template-icon {
+            font-size: 24px;
+            margin-right: 15px;
+        }
+        
+        .template-info h4 {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 4px;
+            color: #333;
+        }
+        
+        .template-info p {
+            font-size: 12px;
+            color: #666;
+            line-height: 1.3;
+        }
+        
+        .quick-tips {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 12px;
+        }
+        
+        .quick-tips h4 {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #333;
+        }
+        
+        .quick-tips ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .quick-tips li {
+            font-size: 12px;
+            color: #666;
+            line-height: 1.4;
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 状态栏 -->
+        <div class="status-bar">
+            <div class="status-left">19:56</div>
+            <div class="status-right">
+                <div class="signal-bars">
+                    <div class="bar"></div>
+                    <div class="bar"></div>
+                    <div class="bar"></div>
+                    <div class="bar"></div>
+                </div>
+                📶 🔋84
+            </div>
+        </div>
+        
+        <!-- 头部 -->
+        <div class="header">
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <span style="font-size: 20px;">🏠</span>
+                <h1>服务号</h1>
+            </div>
+            <div class="rating">
+                ⭐ 4.8 <span style="background: #007AFF; color: white; padding: 2px 6px; border-radius: 10px; font-size: 12px;">认证</span>
+            </div>
+        </div>
+        
+        <!-- 搜索 -->
+        <div class="search-container">
+            <div class="search-box">
+                <span>🔍</span>
+                <input type="text" placeholder="搜索服务师、清洁技巧、收纳方法...">
+                <span style="background: #FFE4B5; padding: 4px 8px; border-radius: 12px; font-size: 11px;">🎯智能</span>
+            </div>
+        </div>
+        
+        <!-- Banner -->
+        <div class="banner-container">
+            <div class="banner">
+                <div class="banner-content">
+                    <h2>真实服务，用心记录</h2>
+                    <p>10000+ 服务师真实分享 • 每日更新</p>
+                </div>
+                <div class="banner-arrow">→</div>
+            </div>
+        </div>
+        
+        <!-- 导航标签 -->
+        <div class="nav-tabs">
+            <div class="nav-tab active">推荐</div>
+            <div class="nav-tab">关注</div>
+            <div class="nav-tab">附近</div>
+            <div class="nav-tab">热门</div>
+        </div>
+        
+        <!-- 内容网格 -->
+        <div class="content-grid">
+            <!-- 大卡片 - 精选内容 -->
+            <div class="content-card large">
+                <div class="card-image" style="background-image: linear-gradient(rgba(0,0,0,0.15), rgba(0,0,0,0.35)), url('https://images.unsplash.com/photo-1581578731548-c64695cc6952?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80')">
+                    <div class="service-tag">⭐ 精选</div>
+                    <div class="before-after-tag">前后对比</div>
+                </div>
+                <div class="card-content">
+                    <div class="card-title">3小时深度清洁，油烟机焕然一新！附详细步骤</div>
+                    <div class="card-meta">
+                        <div class="author-info">
+                            <div class="author-avatar">王</div>
+                            <span class="author-name">王春燕</span>
+                            <div class="service-badge">保洁师</div>
+                        </div>
+                    </div>
+                    <div class="card-stats">
+                        <div class="stat-item">👍 268</div>
+                        <div class="stat-item">💬 45</div>
+                        <div class="stat-item">📍 厦门</div>
+                        <div class="stat-item">⏰ 3小时前</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 小卡片们 -->
+            <div class="content-card">
+                <div class="card-image" style="background-image: linear-gradient(rgba(0,0,0,0.1), rgba(0,0,0,0.25)), url('https://images.unsplash.com/photo-1571171637578-41bc2dd41cd2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80')">
+                    <div class="service-tag">厨房</div>
+                    <div class="before-after-tag">前后</div>
+                </div>
+                <div class="card-content">
+                    <div class="card-title">顽固油污这样清理，立马干净！</div>
+                    <div class="card-meta">
+                        <div class="author-info">
+                            <div class="author-avatar">李</div>
+                            <span class="author-name">李师傅</span>
+                        </div>
+                        <div class="service-badge">保洁师</div>
+                    </div>
+                    <div class="card-stats">
+                        <div class="stat-item">👍 156</div>
+                        <div class="stat-item">💬 23</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="content-card">
+                <div class="card-image" style="background-image: linear-gradient(rgba(0,0,0,0.1), rgba(0,0,0,0.25)), url('https://images.unsplash.com/photo-1562113530-57ba9dfa8ce7?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80')">
+                    <div class="service-tag">收纳</div>
+                </div>
+                <div class="card-content">
+                    <div class="card-title">小户型收纳神技，空间瞬间大一倍</div>
+                    <div class="card-meta">
+                        <div class="author-info">
+                            <div class="author-avatar">张</div>
+                            <span class="author-name">张小美</span>
+                        </div>
+                        <div class="service-badge">收纳师</div>
+                    </div>
+                    <div class="card-stats">
+                        <div class="stat-item">👍 89</div>
+                        <div class="stat-item">💬 12</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="content-card">
+                <div class="card-image" style="background-image: linear-gradient(rgba(0,0,0,0.1), rgba(0,0,0,0.25)), url('https://images.unsplash.com/photo-1544027993-37dbfe43562a?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80')">
+                    <div class="service-tag">育儿</div>
+                </div>
+                <div class="card-content">
+                    <div class="card-title">新生儿护理要点，宝妈必看</div>
+                    <div class="card-meta">
+                        <div class="author-info">
+                            <div class="author-avatar">刘</div>
+                            <span class="author-name">刘阿姨</span>
+                        </div>
+                        <div class="service-badge">月嫂</div>
+                    </div>
+                    <div class="card-stats">
+                        <div class="stat-item">👍 245</div>
+                        <div class="stat-item">💬 67</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="content-card">
+                <div class="card-image" style="background-image: linear-gradient(rgba(0,0,0,0.1), rgba(0,0,0,0.25)), url('https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80')">
+                    <div class="service-tag">美食</div>
+                </div>
+                <div class="card-content">
+                    <div class="card-title">家常菜做法，营养又美味</div>
+                    <div class="card-meta">
+                        <div class="author-info">
+                            <div class="author-avatar">陈</div>
+                            <span class="author-name">陈师傅</span>
+                        </div>
+                        <div class="service-badge">烹饪师</div>
+                    </div>
+                    <div class="card-stats">
+                        <div class="stat-item">👍 134</div>
+                        <div class="stat-item">💬 28</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 浮动发布按钮 -->
+        <div class="fab" onclick="showPublishGuide()">+</div>
+        <div class="topic-bubble">我想说说今天的服务</div>
+        
+        <!-- 发布引导弹窗 -->
+        <div class="publish-guide" id="publishGuide" style="display: none;">
+            <div class="guide-overlay"></div>
+            <div class="guide-content">
+                <div class="guide-header">
+                    <h3>📝 分享今天的服务</h3>
+                    <button class="close-btn" onclick="closePublishGuide()">&times;</button>
+                </div>
+                <div class="guide-templates">
+                    <div class="template-card" onclick="selectTemplate('cleaning')">
+                        <div class="template-icon">🧽</div>
+                        <div class="template-info">
+                            <h4>保洁服务</h4>
+                            <p>拍前后对比照，记录清洁过程</p>
+                        </div>
+                    </div>
+                    <div class="template-card" onclick="selectTemplate('organize')">
+                        <div class="template-icon">📦</div>
+                        <div class="template-info">
+                            <h4>收纳整理</h4>
+                            <p>展示整理前后效果对比</p>
+                        </div>
+                    </div>
+                    <div class="template-card" onclick="selectTemplate('cooking')">
+                        <div class="template-icon">👨‍🍳</div>
+                        <div class="template-info">
+                            <h4>烹饪服务</h4>
+                            <p>分享制作过程和成果</p>
+                        </div>
+                    </div>
+                    <div class="template-card" onclick="selectTemplate('childcare')">
+                        <div class="template-icon">👶</div>
+                        <div class="template-info">
+                            <h4>育儿护理</h4>
+                            <p>记录护理心得和技巧</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="quick-tips">
+                    <h4>📸 拍照小贴士</h4>
+                    <ul>
+                        <li>• 光线充足时拍摄效果更好</li>
+                        <li>• 尽量拍摄前后对比图</li>
+                        <li>• 可以加入工具或材料展示</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 底部导航 -->
+        <div class="bottom-nav">
+            <div class="nav-item active">
+                <div class="nav-icon icon-home"></div>
+                <span>首页</span>
+            </div>
+            <div class="nav-item">
+                <div class="nav-icon icon-discover"></div>
+                <span>发现</span>
+            </div>
+            <div class="nav-item">
+                <div class="nav-icon icon-message"></div>
+                <span>消息</span>
+            </div>
+            <div class="nav-item">
+                <div class="nav-icon icon-profile"></div>
+                <span>我的</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 简单的交互效果
+        document.querySelectorAll('.content-card').forEach(card => {
+            card.addEventListener('click', () => {
+                console.log('卡片被点击');
+            });
+        });
+        
+        // 发布引导相关函数
+        function showPublishGuide() {
+            document.getElementById('publishGuide').style.display = 'flex';
+        }
+        
+        function closePublishGuide() {
+            document.getElementById('publishGuide').style.display = 'none';
+        }
+        
+        function selectTemplate(type) {
+            const templates = {
+                'cleaning': '拍摄清洁前后对比照片，描述使用的清洁方法和效果',
+                'organize': '展示整理前后的空间变化，分享收纳技巧',
+                'cooking': '记录制作过程，展示成品和营养搭配',
+                'childcare': '分享护理经验和注意事项'
+            };
+            alert(`已选择模板：${templates[type]}\n\n系统将引导您完成内容创作！`);
+            closePublishGuide();
+        }
+        
+        // 点击遮罩层关闭弹窗
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('guide-overlay')) {
+                closePublishGuide();
+            }
+        });
+        
+        // 导航标签切换
+        document.querySelectorAll('.nav-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelector('.nav-tab.active').classList.remove('active');
+                tab.classList.add('active');
+            });
+        });
+        
+        // 底部导航切换
+        document.querySelectorAll('.bottom-nav .nav-item').forEach(item => {
+            item.addEventListener('click', () => {
+                document.querySelector('.bottom-nav .nav-item.active').classList.remove('active');
+                item.classList.add('active');
+            });
+        });
+        
+        @keyframes bubble {
+            0%, 70% { opacity: 0; transform: translateY(10px); }
+            10%, 60% { opacity: 1; transform: translateY(0); }
+        }
+    </script>
+</body>
+</html>
