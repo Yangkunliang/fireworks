@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>服务号 - 真实服务，用心记录</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            background: #f7f7f7;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 375px;
+            margin: 0 auto;
+            background: #f7f7f7;
+            min-height: 100vh;
+            position: relative;
+        }
+        
+        /* 微信状态栏 */
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 15px;
+            background: #fff;
+            font-size: 14px;
+            font-weight: 500;
+            border-bottom: 0.5px solid #e7e7e7;
+        }
+        
+        .status-left {
+            font-size: 15px;
+            color: #000;
+        }
+        
+        .status-right {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            color: #000;
+        }
+        
+        /* 头部导航 - 微信风格 */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 15px;
+            background: white;
+            border-bottom: 0.5px solid #e7e7e7;
+        }
+        
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .app-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            background: linear-gradient(135deg, #07c160, #00ae42);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        
+        .header h1 {
+            font-size: 17px;
+            font-weight: 600;
+            color: #000;
+        }
+        
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            color: #576b95;
+        }
+        
+        /* 搜索框 - 微信风格 */
+        .search-container {
+            padding: 8px 15px 12px;
+            background: white;
+        }
+        
+        .search-box {
+            display: flex;
+            align-items: center;
+            background: #f7f7f7;
+            border-radius: 4px;
+            padding: 8px 12px;
+            gap: 6px;
+        }
+        
+        .search-box input {
+            border: none;
+            background: none;
+            flex: 1;
+            font-size: 14px;
+            color: #333;
+        }
+        
+        .search-box input::placeholder {
+            color: #999;
+        }
+        
+        /* Tab导航 - 年轻化设计 */
+        .nav-tabs {
+            display: flex;
+            background: white;
+            padding: 0 15px;
+            border-bottom: 0.5px solid #e7e7e7;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .nav-tab {
+            flex: 1;
+            text-align: center;
+            padding: 12px 0;
+            font-size: 15px;
+            color: #576b95;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-tab.active {
+            color: #07c160;
+            font-weight: 600;
+        }
+        
+        .nav-tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 30px;
+            height: 3px;
+            background: #07c160;
+            border-radius: 2px;
+        }
+        
+        /* Tab内容区域 */
+        .tab-content {
+            display: none;
+            min-height: 500px;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        /* 推荐Tab - 瀑布流布局 */
+        .recommend-content {
+            padding: 12px 15px;
+        }
+        
+        .banner-mini {
+            background: linear-gradient(135deg, #ff6b6b, #ffa726);
+            padding: 16px 20px;
+            border-radius: 12px;
+            margin-bottom: 16px;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .banner-mini::before {
+            content: '✨';
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 20px;
+            opacity: 0.7;
+        }
+        
+        .banner-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        
+        .banner-subtitle {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+        
+        .waterfall-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+        }
+        
+        .card:hover {
+            transform: translateY(-2px);
+        }
+        
+        .card-image {
+            height: 120px;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+        }
+        
+        .service-tag {
+            position: absolute;
+            top: 6px;
+            left: 6px;
+            background: rgba(7, 193, 96, 0.9);
+            color: white;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-size: 10px;
+            font-weight: 500;
+        }
+        
+        .card-content {
+            padding: 10px;
+        }
+        
+        .card-title {
+            font-size: 13px;
+            font-weight: 500;
+            line-height: 1.4;
+            margin-bottom: 8px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        
+        .card-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 11px;
+            color: #999;
+        }
+        
+        .author-info {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .author-avatar {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #07c160, #00ae42);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 8px;
+            font-weight: 600;
+        }
+        
+        /* 关注Tab - 时间线布局 */
+        .follow-content {
+            background: white;
+        }
+        
+        .timeline-item {
+            display: flex;
+            padding: 15px;
+            border-bottom: 0.5px solid #f0f0f0;
+        }
+        
+        .timeline-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            margin-right: 12px;
+            flex-shrink: 0;
+        }
+        
+        .timeline-content {
+            flex: 1;
+        }
+        
+        .timeline-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+        
+        .timeline-name {
+            font-size: 14px;
+            font-weight: 500;
+            color: #333;
+        }
+        
+        .timeline-badge {
+            background: #fff2e8;
+            color: #ff8c00;
+            padding: 1px 6px;
+            border-radius: 8px;
+            font-size: 10px;
+        }
+        
+        .timeline-time {
+            color: #999;
+            font-size: 12px;
+        }
+        
+        .timeline-text {
+            font-size: 14px;
+            line-height: 1.5;
+            margin-bottom: 10px;
+            color: #333;
+        }
+        
+        .timeline-images {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 4px;
+            margin-bottom: 10px;
+        }
+        
+        .timeline-image {
+            aspect-ratio: 1;
+            background-size: cover;
+            background-position: center;
+            border-radius: 4px;
+        }
+        
+        .timeline-actions {
+            display: flex;
+            gap: 20px;
+            color: #999;
+            font-size: 13px;
+        }
+        
+        .timeline-action {
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        
+        .timeline-action:hover {
+            color: #07c160;
+        }
+        
+        /* 附近Tab - 地图风格 */
+        .nearby-content {
+            background: #f0f8ff;
+        }
+        
+        .location-header {
+            background: white;
+            padding: 15px;
+            border-bottom: 0.5px solid #e7e7e7;
+        }
+        
+        .current-location {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .distance-tabs {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .distance-tab {
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            background: #f7f7f7;
+            color: #666;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .distance-tab.active {
+            background: #e8f4fd;
+            color: #576b95;
+        }
+        
+        .nearby-list {
+            padding: 10px 15px;
+        }
+        
+        .nearby-item {
+            background: white;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 8px;
+            display: flex;
+            gap: 12px;
+        }
+        
+        .nearby-image {
+            width: 80px;
+            height: 60px;
+            border-radius: 6px;
+            background-size: cover;
+            background-position: center;
+            flex-shrink: 0;
+        }
+        
+        .nearby-info {
+            flex: 1;
+        }
+        
+        .nearby-title {
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 4px;
+            line-height: 1.3;
+        }
+        
+        .nearby-meta {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            color: #999;
+            margin-bottom: 4px;
+        }
+        
+        .nearby-distance {
+            color: #576b95;
+            font-weight: 500;
+        }
+        
+        /* 热门Tab - 榜单风格 */
+        .hot-content {
+            background: linear-gradient(to bottom, #ffeaa7, #fdcb6e);
+            min-height: 500px;
+        }
+        
+        .hot-header {
+            background: linear-gradient(135deg, #fd79a8, #fdcb6e);
+            color: white;
+            padding: 20px 15px;
+            text-align: center;
+        }
+        
+        .hot-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+        
+        .hot-subtitle {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+        
+        .ranking-list {
+            padding: 15px;
+        }
+        
+        .ranking-item {
+            background: white;
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        
+        .ranking-number {
+            width: 24px;
+            height: 24px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 600;
+            color: white;
+        }
+        
+        .ranking-number.top {
+            background: linear-gradient(135deg, #ff6b6b, #ff8e53);
+        }
+        
+        .ranking-number.normal {
+            background: #ddd;
+            color: #999;
+        }
+        
+        .ranking-image {
+            width: 50px;
+            height: 40px;
+            border-radius: 6px;
+            background-size: cover;
+            background-position: center;
+        }
+        
+        .ranking-info {
+            flex: 1;
+        }
+        
+        .ranking-title {
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 2px;
+            line-height: 1.3;
+        }
+        
+        .ranking-stats {
+            font-size: 11px;
+            color: #999;
+        }
+        
+        .hot-badge {
+            background: linear-gradient(135deg, #ff6b6b, #ff8e53);
+            color: white;
+            padding: 2px 6px;
+            border-radius: 8px;
+            font-size: 10px;
+            font-weight: 500;
+        }
+        
+        /* 浮动按钮 */
+        .fab {
+            position: fixed;
+            bottom: 80px;
+            right: 20px;
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #07c160, #00ae42);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+            font-weight: 400;
+            box-shadow: 0 4px 12px rgba(7, 193, 96, 0.3);
+            cursor: pointer;
+            transition: transform 0.2s;
+            z-index: 100;
+        }
+        
+        .fab:hover {
+            transform: scale(1.1);
+        }
+        
+        /* 底部导航 - 微信风格 */
+        .tabbar {
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 375px;
+            background: white;
+            border-top: 0.5px solid #e7e7e7;
+            display: flex;
+            padding: 8px 0 25px;
+        }
+        
+        .tabbar-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+            color: #7f7f7f;
+            font-size: 10px;
+            cursor: pointer;
+        }
+        
+        .tabbar-item.active {
+            color: #07c160;
+        }
+        
+        .tabbar-icon {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+        
+        /* 响应式调整 */
+        @media (max-width: 320px) {
+            .waterfall-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 微信状态栏 -->
+        <div class="status-bar">
+            <div class="status-left">19:56</div>
+            <div class="status-right">
+                <span>📶</span>
+                <span>🔋84%</span>
+            </div>
+        </div>
+        
+        <!-- 头部 -->
+        <div class="header">
+            <div class="header-left">
+                <div class="app-icon">服</div>
+                <h1>服务号</h1>
+            </div>
+            <div class="header-right">
+                <span>📍</span>
+                <span>💬</span>
+                <span>⚙️</span>
+            </div>
+        </div>
+        
+        <!-- 搜索 -->
+        <div class="search-container">
+            <div class="search-box">
+                <span>🔍</span>
+                <input type="text" placeholder="搜索服务师、清洁技巧、收纳方法...">
+            </div>
+        </div>
+        
+        <!-- Tab导航 -->
+        <div class="nav-tabs">
+            <div class="nav-tab active" onclick="switchTab('recommend')">推荐</div>
+            <div class="nav-tab" onclick="switchTab('follow')">关注</div>
+            <div class="nav-tab" onclick="switchTab('nearby')">附近</div>
+            <div class="nav-tab" onclick="switchTab('hot')">热门</div>
+        </div>
+        
+        <!-- 推荐Tab内容 -->
+        <div id="recommend" class="tab-content active">
+            <div class="recommend-content">
+                <div class="banner-mini">
+                    <div class="banner-title">真实服务，用心记录</div>
+                    <div class="banner-subtitle">10000+ 服务师真实分享</div>
+                </div>
+                
+                <div class="waterfall-grid">
+                    <div class="card">
+                        <div class="card-image" style="background-image: url('https://images.unsplash.com/photo-1581578731548-c64695cc6952?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80')">
+                            <div class="service-tag">深度清洁</div>
+                        </div>
+                        <div class="card-content">
+                            <div class="card-title">油烟机深度清洁，3小时搞定！</div>
+                            <div class="card-footer">
+                                <div class="author-info">
+                                    <div class="author-avatar">王</div>
+                                    <span>王师傅</span>
+                                </div>
+                                <span>❤️ 268</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card" style="margin-top: 20px;">
+                        <div class="card-image" style="background-image: url('https://images.unsplash.com/photo-1562113530-57ba9dfa8ce7?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'); height: 100px;">
+                            <div class="service-tag">收纳神技</div>
+                        </div>
+                        <div class="card-content">
+                            <div class="card-title">小空间收纳大法</div>
+                            <div class="card-footer">
+                                <div class="author-info">
+                                    <div class="author-avatar">李</div>
+                                    <span>李小美</span>
+                                </div>
+                                <span>❤️ 156</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-image" style="background-image: url('https://images.unsplash.com/photo-1571171637578-41bc2dd41cd2?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'); height: 140px;">
+                            <div class="service-tag">厨房清洁</div>
+                        </div>
+                        <div class="card-content">
+                            <div class="card-title">厨房顽固油污克星，这招太管用了！</div>
+                            <div class="card-footer">
+                                <div class="author-info">
+                                    <div class="author-avatar">张</div>
+                                    <span>张阿姨</span>
+                                </div>
+                                <span>❤️ 89</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card" style="margin-top: 15px;">
+                        <div class="card-image" style="background-image: url('https://images.unsplash.com/photo-1544027993-37dbfe43562a?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'); height: 110px;">
+                            <div class="service-tag">育儿护理</div>
+                        </div>
+                        <div class="card-content">
+                            <div class="card-title">新生儿护理小贴士</div>
+                            <div class="card-footer">
+                                <div class="author-info">
+                                    <div class="author-avatar">刘</div>
+                                    <span>刘月嫂</span>
+                                </div>
+                                <span>❤️ 245</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 关注Tab内容 -->
+        <div id="follow" class="tab-content">
+            <div class="follow-content">
+                <div class="timeline-item">
+                    <div class="timeline-avatar">王</div>
+                    <div class="timeline-content">
+                        <div class="timeline-header">
+                            <span class="timeline-name">王春燕</span>
+                            <span class="timeline-badge">保洁师</span>
+                            <span class="timeline-time">2小时前</span>
+                        </div>
+                        <div class="timeline-text">今天遇到超级顽固的油渍，用了这个方法竟然轻松搞定！分享给大家～</div>
+                        <div class="timeline-images">
+                            <div class="timeline-image" style="background-image: url('https://images.unsplash.com/photo-1581578731548-c64695cc6952?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80')"></div>
+                            <div class="timeline-image" style="background-image: url('https://images.unsplash.com/photo-1571171637578-41bc2dd41cd2?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80')"></div>
+                        </div>
+                        <div class="timeline-actions">
+                            <span class="timeline-action">👍 赞</span>
+                            <span class="timeline-action">💬 评论</span>
+                            <span class="timeline-action">📤 分享</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="timeline-item">
+                    <div class="timeline-avatar">李</div>
+                    <div class="timeline-content">
+                        <div class="timeline-header">
+                            <span class="timeline-name">李小美</span>
+                            <span class="timeline-badge">收纳师</span>
+                            <span class="timeline-time">5小时前</span>
+                        </div>
+                        <div class="timeline-text">客户家的衣柜改造完成！从杂乱无章到井然有序，成就感满满💪</div>
+                        <div class="timeline-images">
+                            <div class="timeline-image" style="background-image: url('https://images.unsplash.com/photo-1562113530-57ba9dfa8ce7?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80')"></div>
+                        </div>
+                        <div class="timeline-actions">
+                            <span class="timeline-action">👍 赞</span>
+                            <span class="timeline-action">💬 评论</span>
+                            <span class="timeline-action">📤 分享</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 附近Tab内容 -->
+        <div id="nearby" class="tab-content">
+            <div class="nearby-content">
+                <div class="location-header">
+                    <div class="current-location">
+                        <span>📍</span>
+                        <span>当前位置：厦门市思明区</span>
+                    </div>
+                    <div class="distance-tabs">
+                        <div class="distance-tab active">1km内</div>
+                        <div class="distance-tab">3km内</div>
+                        <div class="distance-tab">5km内</div>
+                        <div class="distance-tab">全城</div>
+                    </div>
+                </div>
+                
+                <div class="nearby-list">
+                    <div class="nearby-item">
+                        <div class="nearby-image" style="background-image: url('https://images.unsplash.com/photo-1581578731548-c64695cc6952?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80')"></div>
+                        <div class="nearby-info">
+                            <div class="nearby-title">深度清洁服务完成，客户超满意！</div>
+                            <div class="nearby-meta">
+                                <span>王春燕 • 保洁师</span>
+                                <span class="nearby-distance">距离 0.8km</span>
+                            </div>
+                            <div class="nearby-meta">
+                                <span>❤️ 45</span>
+                                <span>💬 12</span>
+                                <span>⏰ 1小时前</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="nearby-item">
+                        <div class="nearby-image" style="background-image: url('https://images.unsplash.com/photo-1562113530-57ba9dfa8ce7?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80')"></div>
+                        <div class="nearby-info">
+                            <div class="nearby-title">收纳整理后的效果，太治愈了</div>
+                            <div class="nearby-meta">
+                                <span>李小美 • 收纳师</span>
+                                <span class="nearby-distance">距离 1.2km</span>
+                            </div>
+                            <div class="nearby-meta">
+                                <span>❤️ 67</span>
+                                <span>💬 8</span>
+                                <span>⏰ 3小时前</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="nearby-item">
+                        <div class="nearby-image" style="background-image: url('https://images.unsplash.com/photo-1544027993-37dbfe43562a?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80')"></div>
+                        <div class="nearby-info">
+                            <div class="nearby-title">宝宝护理小课堂开课啦</div>
+                            <div class="nearby-meta">
+                                <span>刘阿姨 • 月嫂</span>
+                                <span class="nearby-distance">距离 2.1km</span>
+                            </div>
+                            <div class="nearby-meta">
+                                <span>❤️ 89</span>
+                                <span>💬 23</span>
+                                <span>⏰ 6小时前</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 热门Tab内容 -->
+        <div id="hot" class="tab-content">
+            <div class="hot-content">
+                <div class="hot-header">
+                    <div class="hot-title">🔥 本周热门榜</div>
+                    <div class="hot-subtitle">最受欢迎的服务分享</div>
+                </div>
+                
+                <div class="ranking-list">
+                    <div
