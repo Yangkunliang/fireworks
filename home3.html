@@ -862,4 +862,130 @@
                 </div>
                 
                 <div class="ranking-list">
-                    <div
+                    <div class="ranking-item">
+                        <div class="ranking-number top">1</div>
+                        <div class="ranking-image" style="background-image: url('https://images.unsplash.com/photo-1581578731548-c64695cc6952?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80')"></div>
+                        <div class="ranking-info">
+                            <div class="ranking-title">油烟机深度清洁神技，3小时变新机！</div>
+                            <div class="ranking-stats">王春燕 • 👍 1.2k • 💬 156</div>
+                        </div>
+                        <div class="hot-badge">爆火</div>
+                    </div>
+                    
+                    <div class="ranking-item">
+                        <div class="ranking-number top">2</div>
+                        <div class="ranking-image" style="background-image: url('https://images.unsplash.com/photo-1562113530-57ba9dfa8ce7?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80')"></div>
+                        <div class="ranking-info">
+                            <div class="ranking-title">小户型收纳大法，空间瞬间翻倍</div>
+                            <div class="ranking-stats">李小美 • 👍 896 • 💬 89</div>
+                        </div>
+                        <div class="hot-badge">热门</div>
+                    </div>
+                    
+                    <div class="ranking-item">
+                        <div class="ranking-number top">3</div>
+                        <div class="ranking-image" style="background-image: url('https://images.unsplash.com/photo-1544027993-37dbfe43562a?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80')"></div>
+                        <div class="ranking-info">
+                            <div class="ranking-title">新手妈妈必看！新生儿护理全攻略</div>
+                            <div class="ranking-stats">刘月嫂 • 👍 756 • 💬 124</div>
+                        </div>
+                        <div class="hot-badge">实用</div>
+                    </div>
+                    
+                    <div class="ranking-item">
+                        <div class="ranking-number normal">4</div>
+                        <div class="ranking-image" style="background-image: url('https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80')"></div>
+                        <div class="ranking-info">
+                            <div class="ranking-title">家常菜这样做，营养美味两不误</div>
+                            <div class="ranking-stats">陈师傅 • 👍 678 • 💬 67</div>
+                        </div>
+                    </div>
+                    
+                    <div class="ranking-item">
+                        <div class="ranking-number normal">5</div>
+                        <div class="ranking-image" style="background-image: url('https://images.unsplash.com/photo-1571171637578-41bc2dd41cd2?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80')"></div>
+                        <div class="ranking-info">
+                            <div class="ranking-title">厨房污渍终极解决方案</div>
+                            <div class="ranking-stats">张阿姨 • 👍 543 • 💬 45</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 浮动发布按钮 -->
+        <div class="fab" onclick="showPublish()">+</div>
+        
+        <!-- 底部导航 -->
+        <div class="tabbar">
+            <div class="tabbar-item active">
+                <div class="tabbar-icon">🏠</div>
+                <span>首页</span>
+            </div>
+            <div class="tabbar-item">
+                <div class="tabbar-icon">🔍</div>
+                <span>发现</span>
+            </div>
+            <div class="tabbar-item">
+                <div class="tabbar-icon">💬</div>
+                <span>消息</span>
+            </div>
+            <div class="tabbar-item">
+                <div class="tabbar-icon">👤</div>
+                <span>我的</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Tab切换功能
+        function switchTab(tabName) {
+            // 移除所有active类
+            document.querySelectorAll('.nav-tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            // 添加active类到选中的tab
+            event.target.classList.add('active');
+            document.getElementById(tabName).classList.add('active');
+        }
+        
+        // 发布按钮
+        function showPublish() {
+            alert('打开创作页面，引导员工分享服务笔记 📝');
+        }
+        
+        // 距离筛选切换
+        document.querySelectorAll('.distance-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelector('.distance-tab.active').classList.remove('active');
+                tab.classList.add('active');
+            });
+        });
+        
+        // 时间线互动
+        document.querySelectorAll('.timeline-action').forEach(action => {
+            action.addEventListener('click', (e) => {
+                if (e.target.textContent.includes('赞')) {
+                    e.target.style.color = '#07c160';
+                    e.target.textContent = '👍 已赞';
+                }
+            });
+        });
+        
+        // 卡片点击效果
+        document.querySelectorAll('.card, .timeline-item, .nearby-item, .ranking-item').forEach(item => {
+            item.addEventListener('click', () => {
+                console.log('查看详情页');
+            });
+        });
+        
+        // 底部导航切换
+        document.querySelectorAll('.tabbar-item').forEach(item => {
+            item.addEventListener('click', () => {
+                document.querySelector('.tabbar-item.active').classList.remove('active');
+                item.classList.add('active');
+            });
+        });
+    </script>
+</body>
+</html>
