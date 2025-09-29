@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>服务号</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', sans-serif;
+            background: #f7f7f7;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 375px;
+            margin: 0 auto;
+            background: #f7f7f7;
+            min-height: 100vh;
+            padding-bottom: 60px;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background: white;
+            border-bottom: 0.5px solid #e7e7e7;
+        }
+        
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .app-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            background: linear-gradient(135deg, #07c160, #00ae42);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        
+        .header h1 {
+            font-size: 17px;
+            font-weight: 600;
+        }
+        
+        .header-right {
+            display: flex;
+            gap: 15px;
+            font-size: 20px;
+        }
+        
+        .search-container {
+            padding: 8px 15px 12px;
+            background: white;
+        }
+        
+        .search-box {
+            display: flex;
+            align-items: center;
+            background: #f7f7f7;
+            border-radius: 4px;
+            padding: 8px 12px;
+            gap: 6px;
+        }
+        
+        .search-box input {
+            border: none;
+            background: none;
+            flex: 1;
+            font-size: 14px;
+        }
+        
+        .nav-tabs {
+            display: flex;
+            background: white;
+            padding: 0 15px;
+            border-bottom: 0.5px solid #e7e7e7;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .nav-tab {
+            flex: 1;
+            text-align: center;
+            padding: 12px 0;
+            font-size: 15px;
+            color: #576b95;
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .nav-tab.active {
+            color: #07c160;
+            font-weight: 600;
+        }
+        
+        .nav-tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 30px;
+            height: 3px;
+            background: #07c160;
+            border-radius: 2px;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .banner-swiper {
+            padding: 12px 15px;
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+        
+        .banner-swiper::-webkit-scrollbar {
+            display: none;
+        }
+        
+        .banner-list {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .banner-item {
+            min-width: 280px;
+            border-radius: 12px;
+            padding: 16px 18px;
+            color: white;
+            cursor: pointer;
+        }
+        
+        .banner-item.primary {
+            background: linear-gradient(135deg, #ff6b6b, #ffa726);
+        }
+        
+        .banner-item.secondary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+        }
+        
+        .banner-item.tertiary {
+            background: linear-gradient(135deg, #06beb6, #48b1bf);
+        }
+        
+        .banner-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        
+        .banner-subtitle {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+        
+        .recommend-content {
+            padding: 0 15px 12px;
+        }
+        
+        .waterfall-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+            cursor: pointer;
+        }
+        
+        .card-image {
+            height: 120px;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+        }
+        
+        .service-tag {
+            position: absolute;
+            top: 6px;
+            left: 6px;
+            background: rgba(7, 193, 96, 0.9);
+            color: white;
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-size: 10px;
+        }
+        
+        .card-body {
+            padding: 10px;
+        }
+        
+        .card-title {
+            font-size: 13px;
+            font-weight: 500;
+            line-height: 1.4;
+            margin-bottom: 8px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        
+        .card-author {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 6px;
+        }
+        
+        .author-avatar {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #07c160, #00ae42);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 9px;
+            font-weight: 600;
+        }
+        
+        .author-name {
+            font-size: 11px;
+            color: #333;
+            font-weight: 500;
+        }
+        
+        .author-role {
+            font-size: 10px;
+            color: #999;
+        }
+        
+        .card-tags {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 6px;
+            flex-wrap: wrap;
+        }
+        
+        .company-tag {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 2px 6px;
+            border-radius: 8px;
+            font-size: 9px;
+        }
+        
+        .cert-badge {
+            background: linear-gradient(135deg, #ffd700, #ffb347);
+            color: #8b4513;
+            padding: 2px 6px;
+            border-radius: 8px;
+            font-size: 9px;
+            font-weight: 600;
+        }
+        
+        .card-footer {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            color: #999;
+        }
+        
+        .like-count {
+            color: #ff6b6b;
+        }
+        
+        /* 详情弹窗 */
+        .detail-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 9999;
+            display: none;
+        }
+        
+        .detail-modal.show {
+            display: block;
+        }
+        
+        .detail-container {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-radius: 20px 20px 0 0;
+            max-height: 95vh;
+            overflow-y: auto;
+            transform: translateY(100%);
+            transition: transform 0.4s ease;
+        }
+        
+        .detail-modal.show .detail-container {
+            transform: translateY(0);
+        }
+        
+        .detail-header {
+            position: sticky;
+            top: 0;
+            background: white;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 0.5px solid #e7e7e7;
+            z-index: 10;
+        }
+        
+        .detail-close {
+            font-size: 24px;
+            cursor: pointer;
+        }
+        
+        .detail-author-card {
+            padding: 15px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .detail-author-main {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 10px;
+        }
+        
+        .detail-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #07c160, #00ae42);
+            overflow: hidden;
+        }
+        
+        .detail-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .detail-author-info {
+            flex: 1;
+        }
+        
+        .detail-name {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+        
+        .detail-tags {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+        
+        .role-tag {
+            background: #e8f4fd;
+            color: #576b95;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 11px;
+        }
+        
+        .detail-follow-btn {
+            background: #07c160;
+            color: white;
+            border: none;
+            padding: 7px 18px;
+            border-radius: 15px;
+            font-size: 13px;
+            cursor: pointer;
+        }
+        
+        .detail-image {
+            width: 100%;
+        }
+        
+        .detail-image img {
+            width: 100%;
+            display: block;
+        }
+        
+        .detail-content {
+            padding: 15px;
+        }
+        
+        .detail-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+        
+        .detail-text {
+            font-size: 15px;
+            line-height: 1.6;
+            margin-bottom: 15px;
+            white-space: pre-line;
+        }
+        
+        .detail-service-card {
+            margin: 15px;
+            background: linear-gradient(135deg, #fff9f0, #fffbf5);
+            border: 1px solid #ffe8cc;
+            border-radius: 12px;
+            padding: 15px;
+            position: relative;
+        }
+        
+        .detail-service-badge {
+            position: absolute;
+            top: -2px;
+            right: 15px;
+            background: linear-gradient(135deg, #ffd700, #ffb347);
+            color: #8b4513;
+            padding: 4px 12px;
+            border-radius: 0 0 12px 12px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        
+        .detail-service-main {
+            display: flex;
+            gap: 12px;
+            margin-top: 5px;
+        }
+        
+        .detail-service-image {
+            width: 100px;
+            height: 75px;
+            border-radius: 8px;
+            overflow: hidden;
+            background: #f0f0f0;
+        }
+        
+        .detail-service-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .detail-service-info {
+            flex: 1;
+        }
+        
+        .detail-service-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        .detail-service-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 8px;
+        }
+        
+        .detail-service-tag {
+            font-size: 11px;
+            padding: 3px 8px;
+            border-radius: 10px;
+            background: white;
+            color: #666;
+            border: 1px solid #e0e0e0;
+            white-space: nowrap;
+        }
+        
+        .detail-service-bottom {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 10px;
+        }
+        
+        .detail-book-btn {
+            background: linear-gradient(135deg, #07c160, #00ae42);
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        
+        .detail-action-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-top: 0.5px solid #e7e7e7;
+            padding: 10px 15px;
+            display: flex;
+            gap: 12px;
+            z-index: 10000;
+        }
+        
+        .detail-comment-input {
+            flex: 1;
+            background: #f7f7f7;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+        }
+        
+        .detail-action-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            border: none;
+            background: none;
+            cursor: pointer;
+            color: #666;
+            font-size: 10px;
+        }
+        
+        .detail-action-icon {
+            font-size: 22px;
+        }
+        
+        .fab {
+            position: fixed;
+            bottom: 80px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #07c160, #00ae42);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            box-shadow: 0 4px 12px rgba(7, 193, 96, 0.4);
+            cursor: pointer;
+            z-index: 100;
+        }
+        
+        .tabbar {
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 375px;
+            background: white;
+            border-top: 0.5px solid #e7e7e7;
+            display: flex;
+            padding: 8px 0 20px;
+            z-index: 200;
+        }
+        
+        .tabbar-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+            color: #7f7f7f;
+            font-size: 10px;
+            cursor: pointer;
+        }
+        
+        .tabbar-item.active {
+            color: #07c160;
+        }
+        
+        .tabbar-icon {
+            font-size: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="header-left">
+                <div class="app-icon">服</div>
+                <h1>服务号</h1>
+            </div>
+            <div class="header-right">
+                <span>📍</span>
+                <span>🔍</span>
+            </div>
+        </div>
+        
+        <div class="search-container">
+            <div class="search-box">
+                <span>🔍</span>
+                <input type="text" placeholder="搜索服务师、清洁技巧...">
+            </div>
+        </div>
+        
+        <div class="nav-tabs">
+            <div class="nav-tab active">推荐</div>
+            <div class="nav-tab">关注</div>
+            <div class="nav-tab">附近</div>
+            <div class="nav-tab">热门</div>
+        </div>
+        
+        <div class="tab-content active">
+            <div class="banner-swiper">
+                <div class="banner-list">
+                    <div class="banner-item primary">
+                        <div class="banner-title">真实服务，用心记录</div>
+                        <div class="banner-subtitle">10000+ 服务师真实分享</div>
+                    </div>
+                    <div class="banner-item secondary">
+                        <div class="banner-title">本月优秀服务师</div>
+                        <div class="banner-subtitle">王春燕 • 好慷在家 • 1.2k赞</div>
+                    </div>
+                    <div class="banner-item tertiary">
+                        <div class="banner-title">新人福利来袭</div>
+                        <div class="banner-subtitle">发布首篇笔记得积分奖励</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="recommend-content">
+                <div class="waterfall-grid">
+                    <div class="card" onclick="showDetail()">
+                        <div class="card-image" style="background-image: url('https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=400')">
+                            <div class="service-tag">深度清洁</div>
+                        </div>
+                        <div class="card-body">
+                            <div class="card-title">油烟机深度清洁，3小时搞定！</div>
+                            <div class="card-author">
+                                <div class="author-avatar">王</div>
+                                <div>
+                                    <div class="author-name">王春燕</div>
+                                    <div class="author-role">保洁师</div>
+                                </div>
+                            </div>
+                            <div class="card-tags">
+                                <div class="company-tag">好慷在家</div>
+                                <div class="cert-badge">✓认证</div>
+                            </div>
+                            <div class="card-footer">
+                                <span>⏰ 3小时前</span>
+                                <span class="like-count">❤️ 268</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card" onclick="showDetail()" style="margin-top: 20px;">
+                        <div class="card-image" style="background-image: url('https://images.unsplash.com/photo-1562113530-57ba9dfa8ce7?w=400'); height: 100px;">
+                            <div class="service-tag">收纳</div>
+                        </div>
+                        <div class="card-body">
+                            <div class="card-title">小空间收纳大法</div>
+                            <div class="card-author">
+                                <div class="author-avatar">李</div>
+                                <div>
+                                    <div class="author-name">李小美</div>
+                                    <div class="author-role">收纳师</div>
+                                </div>
+                            </div>
+                            <div class="card-tags">
+                                <div class="company-tag">好邦妮</div>
+                                <div class="cert-badge">✓认证</div>
+                            </div>
+                            <div class="card-footer">
+                                <span>⏰ 5小时前</span>
+                                <span class="like-count">❤️ 156</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="fab">+</div>
+        
+        <div class="tabbar">
+            <div class="tabbar-item active">
+                <div class="tabbar-icon">🏠</div>
+                <span>首页</span>
+            </div>
+            <div class="tabbar-item">
+                <div class="tabbar-icon">🔍</div>
+                <span>发现</span>
+            </div>
+            <div class="tabbar-item">
+                <div class="tabbar-icon">💬</div>
+                <span>消息</span>
+            </div>
+            <div class="tabbar-item">
+                <div class="tabbar-icon">👤</div>
+                <span>我的</span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 详情弹窗 -->
+    <div class="detail-modal" id="detailModal" onclick="closeIfOverlay(event)">
+        <div class="detail-container">
+            <div class="detail-header">
+                <span style="opacity:0">占位</span>
+                <span class="detail-close" onclick="closeDetail()">✕</span>
+            </div>
+            
+            <div class="detail-author-card">
+                <div class="detail-author-main">
+                    <div class="detail-avatar">
+                        <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100" alt="头像">
+                    </div>
+                    <div class="detail-author-info">
+                        <div class="detail-name">刘玉静 • 青岛/保洁师</div>
+                        <div class="detail-tags">
+                            <span class="role-tag">⭐ 24分</span>
+                            <span class="company-tag">好慷在家</span>
+                            <span class="cert-badge">✓认证</span>
+                        </div>
+                    </div>
+                    <button class="detail-follow-btn">认可TA</button>
+                </div>
+            </div>
+            
+            <div class="detail-image">
+                <img src="https://images.unsplash.com/photo-1464349095431-e9a21285b5f3?w=800" alt="内容">
+            </div>
+            
+            <div class="detail-content">
+                <h1 class="detail-title">十年！</h1>
+                <div class="detail-text">十年！
+
+我们的十年，有坚持，有努力，还有不懈的追求。相信未来的十年我们一起继续加油💪</div>
+            </div>
+            
+            <div class="detail-service-card">
+                <div class="detail-service-badge">不满意重做</div>
+                <div class="detail-service-main">
+                    <div class="detail-service-image">
+                        <img src="https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=200" alt="服务">
+                    </div>
+                    <div class="detail-service-info">
+                        <div class="detail-service-title">全屋日式保洁</div>
+                        <div class="detail-service-tags">
+                            <span class="detail-service-tag">6区40项标准</span>
+                            <span class="detail-service-tag">120㎡以下</span>
+                            <span class="detail-service-tag">自营员工</span>
+                        </div>
+                        <div style="font-size: 12px; color: #999;">全屋6区保洁+基础擦窗，窗明几净</div>
+                    </div>
+                </div>
+                <div class="detail-service-bottom">
+                    <div style="font-size: 12px; color: #999;">高品质服务 · 专业团队</div>
+                    <button class="detail-book-btn">立即预定</button>
+                </div>
+            </div>
+            
+            <div style="height: 80px;"></div>
+        </div>
+        
+        <div class="detail-action-bar">
+            <input type="text" class="detail-comment-input" placeholder="说点什么...">
+            <button class="detail-action-btn" onclick="toggleLike(this)">
+                <span class="detail-action-icon">♡</span>
+                <span>点赞</span>
+            </button>
+            <button class="detail-action-btn">
+                <span class="detail-action-icon">⭐</span>
+                <span>收藏</span>
+            </button>
+            <button class="detail-action-btn">
+                <span class="detail-action-icon">💬</span>
+                <span>评论</span>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        function showDetail() {
+            document.getElementById('detailModal').classList.add('show');
+            document.body.style.overflow = 'hidden';
+        }
+        
+        function closeDetail() {
+            document.getElementById('detailModal').classList.remove('show');
+            document.body.style.overflow = 'auto';
+        }
+        
+        function closeIfOverlay(e) {
+            if (e.target.classList.contains('detail-modal')) {
+                closeDetail();
+            }
+        }
+        
+        function toggleLike(btn) {
+            btn.classList.toggle('active');
+            const icon = btn.querySelector('.detail-action-icon');
+            icon.textContent = btn.classList.contains('active') ? '❤️' : '♡';
+        }
+    </script>
+</body>
+</html>
