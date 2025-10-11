@@ -1,58 +1,470 @@
-        <script>
-        function switchHomeTab(tabName) {
-            document.querySelectorAll('#notesTabs .nav-tab').forEach(tab => tab.classList.remove('active'));
-            event.target.classList.add('active');
-            
-            document.querySelectorAll('#notesView .tab-content').forEach(content => content.classList.remove('active'));
-            document.getElementById(tabName).classList.add('active');
-        }
-        
-        document.querySelectorAll('.distance-tab').forEach(tab => {
-            tab.addEventListener('click', () => {
-                const parent = tab.parentElement;
-                parent.querySelector('.distance-tab.active').classList.remove('active');
-                tab.classList.add('active');
-            });
-        });
-    </script>
-</body>
-</html><!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>服务号 - 完整版</title>
+    <title>服务号 - UI 优化版 (小程序适用)</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', sans-serif; background: #f7f7f7; }
         .container { max-width: 375px; margin: 0 auto; background: #f7f7f7; min-height: 100vh; padding-bottom: 60px; }
         
-        /* 头部 */
-        .header { display: flex; justify-content: space-between; align-items: center; padding: 15px; background: white; border-bottom: 0.5px solid #e7e7e7; }
-        .header-left { display: flex; align-items: center; gap: 8px; }
-        .app-icon { width: 32px; height: 32px; border-radius: 6px; background: linear-gradient(135deg, #07c160, #00ae42); display: flex; align-items: center; justify-content: center; color: white; font-size: 16px; font-weight: bold; }
-        .header h1 { font-size: 17px; font-weight: 600; }
-        .header-right { display: flex; gap: 15px; font-size: 20px; }
+        /* ------------------------------------- */
+        /* 浮动操作按钮 FAB (新增修改) */
+        /* ------------------------------------- */
+        .fab { 
+            position: fixed; 
+            bottom: 80px; 
+            right: 20px; 
+            width: 60px; /* 宽度 */
+            height: 60px; /* 高度 */
+            background: linear-gradient(135deg, #07c160, #00ae42); 
+            border-radius: 30px; /* 圆角 */
+            display: flex; 
+            flex-direction: column; /* 垂直排列图标和文字 */
+            align-items: center; 
+            justify-content: center; 
+            color: white; 
+            box-shadow: 0 4px 12px rgba(7, 193, 96, 0.4); 
+            cursor: pointer; 
+            z-index: 1000; 
+            transition: transform 0.2s;
+        }
+        .fab:active {
+            transform: scale(0.95);
+        }
+        .fab-icon {
+            font-size: 20px;
+            margin-bottom: 2px;
+        }
+        .fab-text {
+            font-size: 12px; 
+            font-weight: 500;
+        }
+        /* ------------------------------------- */
+        /* 头部 & 搜索栏 基础样式 */
+        /* ------------------------------------- */
+        .header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            padding: 8px 15px; 
+            background: white; 
+            border-bottom: 0.5px solid #e7e7e7; 
+        }
+        .header-left { 
+            display: flex; 
+            align-items: center; 
+            gap: 6px; 
+        }
+        .app-icon { 
+            width: 28px; 
+            height: 28px;
+            border-radius: 6px; 
+            background: linear-gradient(135deg, #07c160, #00ae42); 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            color: white; 
+            font-size: 14px; 
+            font-weight: bold; 
+        }
+        .header h1 { 
+            font-size: 16px; 
+            font-weight: 600; 
+        }
+        .header-right { 
+            display: flex; 
+            gap: 10px; 
+            font-size: 18px; 
+        }
+        .search-container { 
+            padding: 5px 15px 8px; 
+            background: white; 
+        }
+        .search-box { 
+            display: flex; 
+            align-items: center; 
+            background: #f7f7f7; 
+            border-radius: 20px; 
+            padding: 6px 10px; 
+            gap: 6px; 
+        }
+        .search-box input { 
+            border: none; 
+            background: none; 
+            flex: 1; 
+            font-size: 14px; 
+            -webkit-appearance: none; 
+        }
+
+        /* ------------------------------------- */
+        /* 品牌榜样人物样式 (新增) */
+        /* ------------------------------------- */
+        .brand-role-model-section {
+            background: white;
+            padding: 15px; 
+            margin-bottom: 8px; 
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        }
+        .role-model-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        .role-model-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #07c160; /* 强调品牌色 */
+        }
+        .role-model-list {
+            display: flex;
+            gap: 15px;
+            overflow-x: auto;
+            scrollbar-width: none;
+            padding-bottom: 5px;
+        }
+        .role-model-list::-webkit-scrollbar {
+            display: none; 
+        }
+        .role-model-card {
+            flex-shrink: 0;
+            width: 120px;
+            text-align: center;
+            padding: 10px;
+            border-radius: 12px;
+            background: #f4f9f4; /* 浅绿背景 */
+            border: 1px solid #d9f3d9;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+            transition: transform 0.2s;
+        }
+        .role-model-card:active {
+            transform: scale(0.98);
+        }
+        .role-model-avatar-wrapper {
+            width: 70px;
+            height: 70px;
+            margin: 0 auto 8px;
+            border-radius: 50%;
+            border: 3px solid #07c160; 
+            padding: 1px;
+            background: white;
+            box-shadow: 0 0 8px rgba(7, 193, 96, 0.3);
+        }
+        .role-model-avatar {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #07c160, #00ae42);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 28px;
+            font-weight: 600;
+        }
+        .role-model-name {
+            font-size: 14px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 4px;
+        }
+        .role-model-motto {
+            font-size: 11px;
+            color: #51a75c;
+            line-height: 1.3;
+            height: 26px; /* 确保高度一致 */
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
         
-        /* 搜索 */
-        .search-container { padding: 8px 15px 12px; background: white; }
-        .search-box { display: flex; align-items: center; background: #f7f7f7; border-radius: 4px; padding: 8px 12px; gap: 6px; }
-        .search-box input { border: none; background: none; flex: 1; font-size: 14px; }
+        /* ------------------------------------- */
+        /* 品牌故事页面样式 (新增) */
+        /* ------------------------------------- */
+        .role-model-page {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #f7f7f7;
+            z-index: 500; /* 高于普通内容，低于弹窗 */
+            display: none;
+            overflow-y: auto;
+        }
+        .role-model-page.active {
+            display: block;
+        }
+        .role-model-page-header {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            background: white;
+            border-bottom: 0.5px solid #e7e7e7;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        .back-btn {
+            font-size: 20px;
+            margin-right: 10px;
+            font-weight: bold;
+            color: #333;
+            cursor: pointer;
+        }
+        .page-title-new {
+            font-size: 17px;
+            font-weight: 600;
+            color: #07c160;
+        }
+        .role-model-page-content {
+            padding: 15px;
+            padding-bottom: 80px; /* Leave space for tabbar */
+        }
+        .story-card-v2 {
+            background: white;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            transition: transform 0.2s;
+            cursor: pointer;
+        }
+        .story-card-v2:active {
+            transform: scale(0.98);
+        }
+        .story-image-v2 {
+            height: 160px;
+            width: 100%;
+            background: linear-gradient(135deg, #07c160, #00ae42);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 16px;
+            position: relative;
+        }
+        .story-tag-v2 {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: #ff6b6b;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .story-body-v2 {
+            padding: 15px;
+        }
+        .story-title-v2 {
+            font-size: 18px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 8px;
+            line-height: 1.3;
+        }
+        .story-excerpt-v2 {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.5;
+            margin-bottom: 12px;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .story-author-v2 {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .story-avatar-v2 {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: #07c160;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        .story-name-v2 {
+            font-size: 13px;
+            font-weight: 500;
+            color: #333;
+        }
+        .story-role-v2 {
+            font-size: 11px;
+            color: #999;
+        }
+        /* ------------------------------------- */
+        /* 笔记达人样式 */
+        /* ------------------------------------- */
+        .creator-ranking-section {
+            background: white;
+            padding: 12px 0 10px; 
+            margin-bottom: 8px; 
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05); 
+        }
+        .creator-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 15px 10px;
+        }
+        .creator-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+        }
+        .creator-more {
+            font-size: 13px;
+            color: #576b95; 
+            cursor: pointer;
+        }
+        .creator-list {
+            display: flex;
+            overflow-x: auto; 
+            padding: 0 15px;
+            gap: 12px;
+            scrollbar-width: none; 
+        }
+        .creator-list::-webkit-scrollbar {
+            display: none; 
+        }
+        .creator-card {
+            flex-shrink: 0; 
+            width: 80px;
+            text-align: center;
+            padding: 8px 0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .creator-card:active {
+            transform: scale(0.98);
+        }
+        .creator-avatar-wrapper {
+            position: relative;
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 6px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #ffd700, #ffb347); 
+            padding: 2px;
+        }
+        .creator-avatar {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: #f7f7f7;
+            border: 2px solid white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+            font-size: 24px;
+        }
+        .creator-name {
+            font-size: 12px;
+            font-weight: 500;
+            color: #333;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .creator-followers {
+            font-size: 10px;
+            color: #999;
+        }
+
+        /* ------------------------------------- */
+        /* 平台精选服务师 Swiper 样式 */
+        /* ------------------------------------- */
+        .platform-featured-swiper {
+            background: white;
+            padding: 0 0 12px;
+            border-bottom: 0.5px solid #e7e7e7;
+        }
+        .platform-featured-swiper .section-title {
+            padding: 12px 15px 0;
+            font-size: 16px;
+            font-weight: 600;
+            background: white;
+        }
+        .featured-list {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto; 
+            padding: 12px 15px 0;
+            scrollbar-width: none;
+        }
+        .featured-list::-webkit-scrollbar {
+            display: none; 
+        }
+        .featured-item {
+            min-width: 100px;
+            max-width: 100px;
+            text-align: center;
+            padding: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            background: #fff;
+            border: 1px solid #f0f0f0;
+        }
+        .featured-item.primary {
+            background: linear-gradient(135deg, #fefce8, #fff8b3); /* 强调色1 */
+        }
+        .featured-item.secondary {
+            background: linear-gradient(135deg, #e6f7ff, #b3e6ff); /* 强调色2 */
+        }
+        .featured-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #07c160, #00ae42);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+            font-weight: 600;
+            margin: 0 auto 8px;
+            border: 2px solid white;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+        }
+        .featured-name {
+            font-size: 13px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 2px;
+        }
+        .featured-role {
+            font-size: 10px;
+            color: #999;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
         
-        /* Tab导航 */
+        /* ------------------------------------- */
+        /* 其他样式 (导航, 卡片, 弹窗等) */
+        /* ------------------------------------- */
         .nav-tabs { display: flex; background: white; padding: 0 15px; border-bottom: 0.5px solid #e7e7e7; position: sticky; top: 0; z-index: 100; }
         .nav-tab { flex: 1; text-align: center; padding: 12px 0; font-size: 15px; color: #576b95; cursor: pointer; position: relative; }
         .nav-tab.active { color: #07c160; font-weight: 600; }
         .nav-tab.active::after { content: ''; position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 30px; height: 3px; background: #07c160; border-radius: 2px; }
-        
-        /* 页面内容 */
         .page-content { display: none; }
         .page-content.active { display: block; }
         .tab-content { display: none; }
         .tab-content.active { display: block; }
-        
-        /* Banner */
-        .banner-swiper { padding: 12px 15px; overflow-x: auto; scrollbar-width: none; }
+        .banner-swiper { padding: 12px 15px; overflow-x: auto; scrollbar-width: none; background: white;}
         .banner-swiper::-webkit-scrollbar { display: none; }
         .banner-list { display: flex; gap: 10px; }
         .banner-item { min-width: 280px; border-radius: 12px; padding: 16px 18px; color: white; cursor: pointer; }
@@ -61,9 +473,7 @@
         .banner-item.tertiary { background: linear-gradient(135deg, #06beb6, #48b1bf); }
         .banner-title { font-size: 16px; font-weight: 600; margin-bottom: 4px; }
         .banner-subtitle { font-size: 12px; opacity: 0.9; }
-        
-        /* 推荐卡片 */
-        .recommend-content { padding: 0 15px 12px; }
+        .recommend-content { padding: 8px 15px 12px; }
         .waterfall-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
         .card { background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.1); cursor: pointer; }
         .card-image { height: 120px; background: linear-gradient(135deg, #667eea, #764ba2); position: relative; display: flex; align-items: center; justify-content: center; color: white; font-size: 12px; }
@@ -79,8 +489,36 @@
         .cert-badge { background: linear-gradient(135deg, #ffd700, #ffb347); color: #8b4513; padding: 2px 6px; border-radius: 8px; font-size: 9px; font-weight: 600; }
         .card-footer { display: flex; justify-content: space-between; font-size: 11px; color: #999; }
         .like-count { color: #ff6b6b; }
-        
-        /* 关注Tab */
+        .view-switcher { display: flex; padding: 12px 15px; background: white; border-bottom: 0.5px solid #e7e7e7; }
+        .view-switcher-container { display: flex; background: #f7f7f7; border-radius: 8px; padding: 3px; margin: 0 auto; }
+        .view-option { padding: 6px 20px; border-radius: 6px; font-size: 14px; color: #666; cursor: pointer; transition: all 0.3s; min-width: 80px; text-align: center; }
+        .view-option.active { background: white; color: #07c160; font-weight: 600; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .provider-grid { padding: 12px 15px; display: grid; grid-template-columns: 1fr; gap: 12px; }
+        .provider-card { background: #ffffff; border-radius: 12px; margin-bottom: 0; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); transition: transform 0.1s, box-shadow 0.1s; position: relative; padding: 15px; overflow: hidden; display: flex; flex-direction: column; cursor: pointer; }
+        .provider-card:active { transform: scale(0.98); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08); }
+        .card-header-aura { position: absolute; top: 0; left: 0; width: 100%; height: 6px; background: linear-gradient(90deg, #51a75c 0%, #a8d7ae 50%, #51a75c 100%); box-shadow: 0 0 10px rgba(81, 167, 92, 0.6); }
+        .card-main-content { display: flex; align-items: center; padding-top: 10px; }
+        .avatar-wrapper { position: relative; width: 70px; height: 70px; border-radius: 50%; display: flex; justify-content: center; align-items: center; background: linear-gradient(45deg, #FFD700, #FFA500); padding: 3px; flex-shrink: 0; }
+        .avatar-wrapper img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; background: #f0f0f0; border: 2px solid white; }
+        .provider-info { flex-grow: 1; padding-left: 15px; }
+        .name-and-badges { display: flex; align-items: center; margin-bottom: 4px; }
+        .provider-name { font-size: 18px; font-weight: bold; color: #333; margin-right: 8px; }
+        .location-anchor { font-size: 12px; color: #51a75c; margin-bottom: 8px; font-weight: 500; }
+        .badge { display: inline-block; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: 500; margin-right: 4px; white-space: nowrap; }
+        .badge-gold-new { background-color: #ffe8b3; color: #d49300; }
+        .badge-verified-new { background-color: #e5f5e7; color: #51a75c; }
+        .review-snippet { margin-top: 10px; background: #f4f9f4; padding: 8px 12px; border-radius: 8px; font-size: 12px; color: #51a75c; border-left: 3px solid #51a75c; line-height: 1.4; }
+        .review-snippet span { color: #666; }
+        .provider-stats-v2 { display: flex; justify-content: space-between; align-items: center; margin-top: 15px; padding-top: 15px; border-top: 1px solid #eee; }
+        .stat-item-v2 { text-align: center; flex: 1; }
+        .stat-value-v2 { font-size: 16px; font-weight: bold; color: #333; }
+        .highlight-gold-v2 { color: #FF7F50; font-size: 18px; }
+        .stat-label-v2 { font-size: 11px; color: #999; margin-top: 2px; }
+        .card-footer-v2 { display: flex; justify-content: flex-end; align-items: center; margin-top: 15px; }
+        .scarcity-tag { background: #ff4d4f; color: white; font-size: 10px; padding: 2px 6px; border-radius: 10px; margin-right: 10px; font-weight: bold; animation: pulse 1.5s infinite; white-space: nowrap; }
+        @keyframes pulse { 0% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.05); opacity: 0.8; } 100% { transform: scale(1); opacity: 1; } }
+        .btn-primary-v2 { background-color: #51a75c; color: white; border: none; padding: 10px 18px; border-radius: 8px; font-size: 14px; font-weight: bold; transition: background-color 0.2s; flex-shrink: 0; }
+        .btn-primary-v2:hover { background-color: #458d51; }
         .follow-content { background: white; }
         .timeline-item { display: flex; padding: 15px; border-bottom: 0.5px solid #f0f0f0; cursor: pointer; }
         .timeline-avatar { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(45deg, #667eea, #764ba2); display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; margin-right: 12px; }
@@ -90,8 +528,6 @@
         .timeline-role { background: #fff2e8; color: #ff8c00; padding: 2px 6px; border-radius: 8px; font-size: 10px; }
         .timeline-text { font-size: 14px; line-height: 1.5; margin-bottom: 10px; }
         .timeline-actions { display: flex; gap: 20px; color: #999; font-size: 13px; }
-        
-        /* 附近Tab */
         .nearby-content { background: #f0f8ff; }
         .location-header { background: white; padding: 15px; border-bottom: 0.5px solid #e7e7e7; }
         .current-location { display: flex; align-items: center; gap: 8px; font-size: 14px; margin-bottom: 10px; }
@@ -101,55 +537,6 @@
         .nearby-list { padding: 10px 15px; }
         .nearby-item { background: white; border-radius: 8px; padding: 12px; margin-bottom: 8px; cursor: pointer; }
         .nearby-title { font-size: 14px; font-weight: 500; margin-bottom: 6px; }
-        
-        /* 热门Tab */
-        .hot-content { background: linear-gradient(to bottom, #ffeaa7, #fdcb6e); min-height: 500px; }
-        .hot-header { background: linear-gradient(135deg, #fd79a8, #fdcb6e); color: white; padding: 20px 15px; text-align: center; }
-        .hot-title { font-size: 18px; font-weight: 600; margin-bottom: 6px; }
-        .ranking-list { padding: 15px; }
-        .ranking-item { background: white; border-radius: 12px; padding: 12px; margin-bottom: 10px; display: flex; gap: 12px; cursor: pointer; }
-        .ranking-number { width: 24px; height: 24px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; color: white; }
-        .ranking-number.top { background: linear-gradient(135deg, #ff6b6b, #ff8e53); }
-        .ranking-number.normal { background: #ddd; color: #999; }
-        .ranking-info { flex: 1; }
-        .ranking-title { font-size: 14px; font-weight: 500; margin-bottom: 2px; }
-        
-        /* 发现页 */
-        .discover-page { padding: 15px; }
-        .section-title { font-size: 16px; font-weight: 600; margin-bottom: 12px; }
-        .topic-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
-        .topic-card { background: white; border-radius: 8px; padding: 15px; box-shadow: 0 1px 4px rgba(0,0,0,0.1); cursor: pointer; }
-        .topic-icon { font-size: 28px; margin-bottom: 8px; }
-        .topic-name { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
-        .topic-count { font-size: 11px; color: #999; }
-        
-        /* 消息页 */
-        .message-page { background: white; }
-        .message-tabs { display: flex; padding: 10px 15px; gap: 15px; border-bottom: 0.5px solid #e7e7e7; overflow-x: auto; }
-        .message-tab { padding: 6px 12px; border-radius: 15px; font-size: 13px; color: #666; background: #f7f7f7; cursor: pointer; white-space: nowrap; }
-        .message-tab.active { background: #07c160; color: white; }
-        .message-item { padding: 15px; border-bottom: 0.5px solid #f0f0f0; cursor: pointer; }
-        .message-name { font-size: 14px; font-weight: 500; margin-bottom: 6px; }
-        .message-text { font-size: 13px; color: #666; }
-        
-        /* 我的页 */
-        .profile-page { background: #f7f7f7; }
-        .profile-header { background: linear-gradient(135deg, #07c160, #00ae42); padding: 30px 20px; color: white; }
-        .profile-info { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; }
-        .profile-avatar { width: 60px; height: 60px; border-radius: 50%; background: white; display: flex; align-items: center; justify-content: center; font-size: 24px; color: #07c160; font-weight: 600; }
-        .profile-name { font-size: 20px; font-weight: 600; margin-bottom: 6px; }
-        .profile-stats { display: flex; gap: 30px; }
-        .stat-item { text-align: center; }
-        .stat-number { font-size: 20px; font-weight: 600; margin-bottom: 4px; }
-        .stat-label { font-size: 12px; opacity: 0.9; }
-        .profile-menu { padding: 15px; }
-        .menu-section { background: white; border-radius: 8px; margin-bottom: 10px; overflow: hidden; }
-        .menu-item { display: flex; align-items: center; padding: 15px; border-bottom: 0.5px solid #f0f0f0; cursor: pointer; }
-        .menu-item:last-child { border-bottom: none; }
-        .menu-icon { font-size: 20px; margin-right: 12px; }
-        .menu-text { flex: 1; font-size: 14px; }
-        
-        /* 详情弹窗 */
         .detail-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100vh; background: rgba(0, 0, 0, 0.5); z-index: 9999; display: none; }
         .detail-modal.show { display: block; }
         .detail-container { position: absolute; bottom: 0; left: 0; right: 0; background: white; border-radius: 20px 20px 0 0; max-height: 95vh; overflow-y: auto; transform: translateY(100%); transition: transform 0.4s ease; }
@@ -168,8 +555,6 @@
         .detail-content { padding: 15px; }
         .detail-title { font-size: 18px; font-weight: 600; margin-bottom: 12px; }
         .detail-text { font-size: 15px; line-height: 1.6; margin-bottom: 15px; white-space: pre-line; }
-        
-        /* 服务卡片 */
         .detail-service-card { margin: 15px; background: linear-gradient(135deg, #fff9f0, #fffbf5); border: 1px solid #ffe8cc; border-radius: 12px; padding: 15px; position: relative; }
         .detail-service-badge { position: absolute; top: -2px; right: 15px; background: linear-gradient(135deg, #ffd700, #ffb347); color: #8b4513; padding: 4px 12px; border-radius: 0 0 12px 12px; font-size: 11px; font-weight: 600; }
         .detail-service-main { display: flex; gap: 12px; margin-top: 5px; }
@@ -181,8 +566,6 @@
         .detail-service-desc { font-size: 12px; color: #999; margin-bottom: 10px; }
         .detail-service-bottom { display: flex; justify-content: space-between; align-items: center; }
         .detail-book-btn { background: linear-gradient(135deg, #07c160, #00ae42); color: white; border: none; padding: 8px 20px; border-radius: 20px; font-size: 14px; cursor: pointer; }
-        
-        /* 相关笔记 */
         .detail-related { padding: 15px; background: #f7f7f7; }
         .detail-related-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding-bottom: 80px; }
         .detail-related-card { background: white; border-radius: 8px; overflow: hidden; cursor: pointer; }
@@ -194,292 +577,28 @@
         .detail-related-author { display: flex; align-items: center; gap: 6px; }
         .detail-related-avatar { width: 16px; height: 16px; border-radius: 50%; background: linear-gradient(45deg, #07c160, #00ae42); }
         .detail-related-name { font-size: 11px; color: #666; }
-        
-        /* 底部操作栏 */
-        .detail-action-bar { position: fixed; bottom: 0; left: 0; right: 0; background: white; border-top: 0.5px solid #e7e7e7; padding: 10px 15px; display: flex; gap: 12px; z-index: 10000; }
+        /* 修正了笔记详情底部操作栏的定位 (FIXED: position: absolute) */
+        .detail-action-bar { 
+            position: absolute; /* 修正：改为 absolute，使其相对于固定全屏的父容器定位 */
+            bottom: 0; 
+            left: 50%; 
+            transform: translateX(-50%);
+            width: 375px; /* 匹配主内容区宽度 */
+            background: white; 
+            border-top: 0.5px solid #e7e7e7; 
+            padding: 10px 15px; 
+            display: flex; 
+            gap: 12px; 
+            z-index: 10000; 
+        }
         .detail-comment-input { flex: 1; background: #f7f7f7; border: none; padding: 8px 12px; border-radius: 20px; font-size: 14px; }
         .detail-action-btn { display: flex; flex-direction: column; align-items: center; border: none; background: none; cursor: pointer; color: #666; font-size: 10px; }
         .detail-action-btn.active { color: #ff6b6b; }
         .detail-action-icon { font-size: 22px; }
-        
-        /* FAB & Tabbar */
-        .fab { position: fixed; bottom: 80px; right: 20px; width: 50px; height: 50px; background: linear-gradient(135deg, #07c160, #00ae42); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 24px; box-shadow: 0 4px 12px rgba(7, 193, 96, 0.4); cursor: pointer; z-index: 100; }
         .tabbar { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 375px; background: white; border-top: 0.5px solid #e7e7e7; display: flex; padding: 8px 0 20px; z-index: 200; }
         .tabbar-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; color: #7f7f7f; font-size: 10px; cursor: pointer; }
         .tabbar-item.active { color: #07c160; }
         .tabbar-icon { font-size: 20px; }
-        /* 视图切换按钮 */
-        .view-switcher {
-            display: flex;
-            padding: 12px 15px;
-            background: white;
-            border-bottom: 0.5px solid #e7e7e7;
-        }
-        
-        .view-switcher-container {
-            display: flex;
-            background: #f7f7f7;
-            border-radius: 8px;
-            padding: 3px;
-            margin: 0 auto;
-        }
-        
-        .view-option {
-            padding: 6px 20px;
-            border-radius: 6px;
-            font-size: 14px;
-            color: #666;
-            cursor: pointer;
-            transition: all 0.3s;
-            min-width: 80px;
-            text-align: center;
-        }
-        
-        .view-option.active {
-            background: white;
-            color: #07c160;
-            font-weight: 600;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-        }
-        
-        /* 服务者卡片 */
-        .provider-grid {
-            padding: 12px 15px;
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 12px;
-        }
-        
-        .provider-card {
-            background: white;
-            border-radius: 12px;
-            padding: 15px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-            cursor: pointer;
-            transition: all 0.2s;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .provider-card:active {
-            transform: scale(0.98);
-        }
-        
-        .provider-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: linear-gradient(90deg, #07c160, #00ae42);
-        }
-        
-        .provider-header {
-            display: flex;
-            gap: 12px;
-            margin-bottom: 12px;
-        }
-        
-        .provider-avatar-wrapper {
-            position: relative;
-        }
-        
-        .provider-avatar {
-            width: 70px;
-            height: 70px;
-            border-radius: 12px;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 24px;
-            font-weight: 600;
-            overflow: hidden;
-        }
-        
-        .provider-avatar img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        
-        .online-badge {
-            position: absolute;
-            bottom: 2px;
-            right: 2px;
-            width: 14px;
-            height: 14px;
-            background: #07c160;
-            border: 2px solid white;
-            border-radius: 50%;
-        }
-        
-        .provider-basic {
-            flex: 1;
-        }
-        
-        .provider-name-line {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            margin-bottom: 6px;
-        }
-        
-        .provider-name {
-            font-size: 18px;
-            font-weight: 600;
-            color: #333;
-        }
-        
-        .provider-gender {
-            font-size: 16px;
-        }
-        
-        .provider-age {
-            font-size: 13px;
-            color: #666;
-            background: #f0f0f0;
-            padding: 2px 8px;
-            border-radius: 10px;
-        }
-        
-        .provider-role {
-            font-size: 14px;
-            color: #07c160;
-            font-weight: 500;
-            margin-bottom: 6px;
-        }
-        
-        .provider-location {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            font-size: 12px;
-            color: #999;
-        }
-        
-        .provider-badges {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 6px;
-            margin-bottom: 12px;
-        }
-        
-        .badge-item {
-            padding: 4px 10px;
-            border-radius: 12px;
-            font-size: 11px;
-            font-weight: 500;
-        }
-        
-        .badge-gold {
-            background: linear-gradient(135deg, #ffd700, #ffb347);
-            color: #8b4513;
-        }
-        
-        .badge-blue {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-        }
-        
-        .badge-green {
-            background: linear-gradient(135deg, #06beb6, #48b1bf);
-            color: white;
-        }
-        
-        .badge-red {
-            background: linear-gradient(135deg, #ff6b6b, #ff8e53);
-            color: white;
-        }
-        
-        .badge-purple {
-            background: linear-gradient(135deg, #a8edea, #fed6e3);
-            color: #666;
-        }
-        
-        .provider-skills {
-            margin-bottom: 12px;
-        }
-        
-        .skills-title {
-            font-size: 12px;
-            color: #999;
-            margin-bottom: 6px;
-        }
-        
-        .skills-tags {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 6px;
-        }
-        
-        .skill-tag {
-            background: #f7f7f7;
-            color: #666;
-            padding: 4px 10px;
-            border-radius: 10px;
-            font-size: 11px;
-            border: 1px solid #e0e0e0;
-        }
-        
-        .provider-stats {
-            display: flex;
-            justify-content: space-around;
-            padding: 12px 0;
-            border-top: 1px solid #f0f0f0;
-        }
-        
-        .provider-stat {
-            text-align: center;
-        }
-        
-        .stat-value {
-            font-size: 18px;
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 2px;
-        }
-        
-        .stat-label {
-            font-size: 11px;
-            color: #999;
-        }
-        
-        .provider-footer {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: 12px;
-            padding-top: 12px;
-            border-top: 1px solid #f0f0f0;
-        }
-        
-        .provider-distance {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            font-size: 12px;
-            color: #576b95;
-            font-weight: 500;
-        }
-        
-        .provider-contact {
-            background: linear-gradient(135deg, #07c160, #00ae42);
-            color: white;
-            border: none;
-            padding: 8px 20px;
-            border-radius: 20px;
-            font-size: 13px;
-            font-weight: 500;
-            cursor: pointer;
-            box-shadow: 0 2px 8px rgba(7, 193, 96, 0.3);
-        }
-        
-        .provider-contact:active {
-            transform: scale(0.95);
-        }
     </style>
 </head>
 <body>
@@ -491,11 +610,9 @@
             </div>
             <div class="header-right">
                 <span>📍</span>
-                <span>🔍</span>
             </div>
         </div>
         
-        <!-- 首页 -->
         <div id="homePage" class="page-content active">
             <div class="search-container">
                 <div class="search-box">
@@ -504,7 +621,6 @@
                 </div>
             </div>
             
-            <!-- 视图切换 -->
             <div class="view-switcher">
                 <div class="view-switcher-container">
                     <div class="view-option active" onclick="switchView('notes')">📝 笔记</div>
@@ -512,7 +628,6 @@
                 </div>
             </div>
             
-            <!-- 笔记视图的Tab -->
             <div class="nav-tabs" id="notesTabs">
                 <div class="nav-tab active" onclick="switchHomeTab('recommend')">推荐</div>
                 <div class="nav-tab" onclick="switchHomeTab('follow')">关注</div>
@@ -520,7 +635,6 @@
                 <div class="nav-tab" onclick="switchHomeTab('hot')">热门</div>
             </div>
             
-            <!-- 服务者视图的Tab -->
             <div class="nav-tabs" id="providersTabs" style="display: none;">
                 <div class="nav-tab active" onclick="switchProviderTab('comprehensive')">综合推荐</div>
                 <div class="nav-tab" onclick="switchProviderTab('distance')">距离优先</div>
@@ -528,10 +642,9 @@
                 <div class="nav-tab" onclick="switchProviderTab('orders')">接单最多</div>
             </div>
             
-            <!-- 笔记视图 -->
             <div id="notesView" class="view-content active">
-            <!-- 推荐Tab -->
             <div id="recommend" class="tab-content active">
+                
                 <div class="banner-swiper">
                     <div class="banner-list">
                         <div class="banner-item primary">
@@ -545,6 +658,98 @@
                         <div class="banner-item tertiary">
                             <div class="banner-title">新人福利来袭</div>
                             <div class="banner-subtitle">发布首篇笔记得积分奖励</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="brand-role-model-section">
+                    <div class="role-model-header">
+                        <div class="role-model-title">✨ 品牌榜样人物</div>
+                        <div class="creator-more" onclick="showRoleModelPage()">了解品牌故事 ▶︎</div>
+                    </div>
+                    <div class="role-model-list">
+                        <div class="role-model-card" onclick="showDetail()">
+                            <div class="role-model-avatar-wrapper">
+                                <div class="role-model-avatar">A</div>
+                            </div>
+                            <div class="role-model-name">金牌阿姨A</div>
+                            <div class="role-model-motto">“十年如一日，用专业成就美好生活。”</div>
+                        </div>
+                        <div class="role-model-card" onclick="showDetail()">
+                            <div class="role-model-avatar-wrapper" style="background: white; border: 3px solid #ff6b6b;">
+                                <div class="role-model-avatar" style="background: linear-gradient(135deg, #667eea, #764ba2);">B</div>
+                            </div>
+                            <div class="role-model-name">收纳专家B</div>
+                            <div class="role-model-motto">“让家井然有序，让心灵回归平静。”</div>
+                        </div>
+                        <div class="role-model-card" onclick="showDetail()">
+                            <div class="role-model-avatar-wrapper" style="border: 3px solid #ff6b6b;">
+                                <div class="role-model-avatar" style="background: linear-gradient(135deg, #ff6b6b, #ff8e53);">C</div>
+                            </div>
+                            <div class="role-model-name">育婴达人C</div>
+                            <div class="role-model-motto">“科学育儿，为宝宝健康成长保驾护航。”</div>
+                        </div>
+                        <div class="role-model-card" onclick="showRoleModelPage()">
+                            <div class="role-model-avatar-wrapper" style="border: 3px solid #f9a825;">
+                                <div class="role-model-avatar" style="background: white; color: #f9a825; font-size: 16px;">精选</div>
+                            </div>
+                            <div class="role-model-name">更多榜样</div>
+                            <div class="role-model-motto" style="color: #f9a825;">发现更多品牌故事</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="creator-ranking-section">
+                    <div class="creator-header">
+                        <div class="creator-title">🏆 笔记达人榜</div>
+                        <div class="creator-more">查看全部 ▶︎</div>
+                    </div>
+                    <div class="creator-list">
+                        <div class="creator-card">
+                            <div class="creator-avatar-wrapper">
+                                <div class="creator-avatar" style="background: linear-gradient(45deg, #07c160, #00ae42); color: white;">王</div>
+                            </div>
+                            <div class="creator-name">王春燕</div>
+                            <div class="creator-followers">金牌保洁师</div>
+                        </div>
+
+                        <div class="creator-card">
+                            <div class="creator-avatar-wrapper">
+                                <div class="creator-avatar" style="background: linear-gradient(45deg, #667eea, #764ba2); color: white;">李</div>
+                            </div>
+                            <div class="creator-name">李小美</div>
+                            <div class="creator-followers">明星收纳师</div>
+                        </div>
+                        
+                        <div class="creator-card">
+                            <div class="creator-avatar-wrapper">
+                                <div class="creator-avatar" style="background: linear-gradient(45deg, #ff6b6b, #ff8e53); color: white;">刘</div>
+                            </div>
+                            <div class="creator-name">刘月嫂</div>
+                            <div class="creator-followers">金牌育儿</div>
+                        </div>
+                        
+                        <div class="creator-card">
+                            <div class="creator-avatar-wrapper">
+                                <div class="creator-avatar" style="background: linear-gradient(45deg, #06beb6, #48b1bf); color: white;">张</div>
+                            </div>
+                            <div class="creator-name">张师傅</div>
+                            <div class="creator-followers">维修专家</div>
+                        </div>
+                        
+                        <div class="creator-card">
+                            <div class="creator-avatar-wrapper" style="background: linear-gradient(45deg, #ffd700, #ffb347); padding: 2px;">
+                                <div class="creator-avatar" style="background: white; color: #ff9900; font-size: 16px;">小张</div>
+                            </div>
+                            <div class="creator-name">装修小张</div>
+                            <div class="creator-followers">1.2k 粉丝</div>
+                        </div>
+                        
+                        <div class="creator-card">
+                            <div class="creator-avatar-wrapper" style="background: #e7e7e7; padding: 0;">
+                                <div class="creator-avatar" style="background: #f7f7f7; border: none; color: #666; font-size: 16px; margin-top: 2px;">→</div>
+                            </div>
+                            <div class="creator-name" style="color: #666;">查看更多</div>
+                            <div class="creator-followers"></div>
                         </div>
                     </div>
                 </div>
@@ -654,777 +859,362 @@
             </div>
             </div>
             
-            <!-- 服务者视图 -->
             <div id="providersView" class="view-content" style="display: none;">
-                <!-- 综合推荐Tab -->
                 <div id="comprehensive-tab" class="tab-content active">
+                    
+                    <div class="platform-featured-swiper">
+                        <div class="section-title">✨ 平台精选服务师</div>
+                        <div class="featured-list">
+                            <div class="featured-item primary" onclick="showDetail()">
+                                <div class="featured-avatar">王</div>
+                                <div class="featured-name">王春燕</div>
+                                <div class="featured-role">金牌保洁师</div>
+                            </div>
+                            <div class="featured-item secondary" onclick="showDetail()">
+                                <div class="featured-avatar" style="background: linear-gradient(135deg, #ff6b6b, #ff8e53);">李</div>
+                                <div class="featured-name">李小美</div>
+                                <div class="featured-role">专业收纳师</div>
+                            </div>
+                            <div class="featured-item" onclick="showDetail()">
+                                <div class="featured-avatar" style="background: linear-gradient(135deg, #667eea, #764ba2);">张</div>
+                                <div class="featured-name">张阿姨</div>
+                                <div class="featured-role">高级保洁师</div>
+                            </div>
+                            <div class="featured-item primary" onclick="showDetail()">
+                                <div class="featured-avatar" style="background: linear-gradient(135deg, #06beb6, #48b1bf);">刘</div>
+                                <div class="featured-name">刘月嫂</div>
+                                <div class="featured-role">专业月嫂</div>
+                            </div>
+                            <div class="featured-item secondary" onclick="showDetail()">
+                                <div class="featured-avatar">杨</div>
+                                <div class="featured-name">杨师傅</div>
+                                <div class="featured-role">家电维修师</div>
+                            </div>
+                        </div>
+                    </div>
+
                     <div style="padding: 12px 15px; background: #f0f8ff; border-bottom: 1px solid #e0f0ff;">
                         <div style="font-size: 13px; color: #576b95;">
                             <span style="font-weight: 600;">智能推荐</span> · 根据距离、评分、接单量综合排序
                         </div>
                     </div>
                     <div class="provider-grid">
-                        <!-- 服务者卡片1 -->
+                        
                         <div class="provider-card" onclick="showDetail()">
-                            <div class="provider-header">
-                                <div class="provider-avatar-wrapper">
-                                    <div class="provider-avatar">王</div>
-                                    <div class="online-badge"></div>
+                            <div class="card-header-aura"></div>
+                            
+                            <div class="card-main-content">
+                                <div class="avatar-wrapper">
+                                    <img src="https://via.placeholder.com/150/51a75c/FFFFFF?text=王" alt="服务师头像">
                                 </div>
-                                <div class="provider-basic">
-                                    <div class="provider-name-line">
+                                
+                                <div class="provider-info">
+                                    <div class="name-and-badges">
                                         <span class="provider-name">王春燕</span>
-                                        <span class="provider-gender">♀</span>
-                                        <span class="provider-age">42岁</span>
+                                        <span class="badge badge-gold-new">五星金牌</span>
+                                        <span class="badge badge-verified-new">平台认证</span>
                                     </div>
-                                    <div class="provider-role">⭐ 金牌保洁师</div>
-                                    <div class="provider-location">
-                                        <span>📍 厦门市思明区</span>
-                                        <span>•</span>
-                                        <span>🏢 好慷在家</span>
-                                    </div>
+                                    
+                                    <div class="location-anchor">🏠 您附近人气之选 | 距您 0.8km</div>
                                 </div>
                             </div>
-                            
-                            <div class="provider-badges">
-                                <div class="badge-item badge-gold">⭐ 五星好评</div>
-                                <div class="badge-item badge-blue">🏆 月度之星</div>
-                                <div class="badge-item badge-green">✓ 实名认证</div>
-                                <div class="badge-item badge-red">🔥 超级服务师</div>
-                                <div class="badge-item badge-purple">💼 8年工龄</div>
+
+                            <div class="review-snippet">
+                                “客户说：<span>王阿姨擦玻璃特别干净，下次还找她！</span>”
                             </div>
-                            
-                            <div class="provider-skills">
-                                <div class="skills-title">擅长技能</div>
-                                <div class="skills-tags">
-                                    <div class="skill-tag">油烟机深度清洁</div>
-                                    <div class="skill-tag">厨房除油</div>
-                                    <div class="skill-tag">玻璃清洁</div>
-                                    <div class="skill-tag">全屋保洁</div>
-                                    <div class="skill-tag">开荒保洁</div>
+
+                            <div class="provider-stats-v2">
+                                <div class="stat-item-v2">
+                                    <div class="stat-value-v2 highlight-gold-v2">4.9</div>
+                                    <div class="stat-label-v2">综合评分</div>
                                 </div>
-                            </div>
-                            
-                            <div class="provider-stats">
-                                <div class="provider-stat">
-                                    <div class="stat-value">1,245</div>
-                                    <div class="stat-label">服务单数</div>
+                                <div class="stat-item-v2">
+                                    <div class="stat-value-v2 highlight-gold-v2">1,245</div>
+                                    <div class="stat-label-v2">服务单数</div>
                                 </div>
-                                <div class="provider-stat">
-                                    <div class="stat-value">4.9</div>
-                                    <div class="stat-label">综合评分</div>
-                                </div>
-                                <div class="provider-stat">
-                                    <div class="stat-value">98%</div>
-                                    <div class="stat-label">好评率</div>
-                                </div>
-                                <div class="provider-stat">
-                                    <div class="stat-value">28</div>
-                                    <div class="stat-label">笔记</div>
+                                <div class="stat-item-v2">
+                                    <div class="stat-value-v2">98%</div>
+                                    <div class="stat-label-v2">好评率</div>
                                 </div>
                             </div>
-                            
-                            <div class="provider-footer">
-                                <div class="provider-distance">📍 距离您 0.8km</div>
-                                <button class="provider-contact">立即预约</button>
+
+                            <div class="card-footer-v2">
+                                <div class="scarcity-tag">🔥 今日仅剩 3 个时段</div>
+                                <button class="btn-primary-v2">抢约 Ta 的服务</button>
                             </div>
                         </div>
-                        
-                        <!-- 服务者卡片2 -->
+
                         <div class="provider-card" onclick="showDetail()">
-                            <div class="provider-header">
-                                <div class="provider-avatar-wrapper">
-                                    <div class="provider-avatar" style="background: linear-gradient(135deg, #06beb6, #48b1bf);">李</div>
-                                    <div class="online-badge"></div>
+                            <div class="card-header-aura" style="background: linear-gradient(90deg, #48b1bf 0%, #a8e5ed 50%, #48b1bf 100%); box-shadow: 0 0 10px rgba(72, 177, 191, 0.6);"></div>
+                            
+                            <div class="card-main-content">
+                                <div class="avatar-wrapper" style="background: linear-gradient(45deg, #06beb6, #48b1bf);">
+                                    <img src="https://via.placeholder.com/150/48b1bf/FFFFFF?text=李" alt="服务师头像">
                                 </div>
-                                <div class="provider-basic">
-                                    <div class="provider-name-line">
+                                
+                                <div class="provider-info">
+                                    <div class="name-and-badges">
                                         <span class="provider-name">李小美</span>
-                                        <span class="provider-gender">♀</span>
-                                        <span class="provider-age">38岁</span>
+                                        <span class="badge badge-gold-new">收纳达人</span>
+                                        <span class="badge badge-verified-new">平台认证</span>
                                     </div>
-                                    <div class="provider-role">⭐ 专业收纳师</div>
-                                    <div class="provider-location">
-                                        <span>📍 厦门市湖里区</span>
-                                        <span>•</span>
-                                        <span>🏢 好邦妮</span>
-                                    </div>
+                                    <div class="location-anchor">🏡 湖里区明星收纳师 | 距您 1.2km</div>
                                 </div>
                             </div>
-                            
-                            <div class="provider-badges">
-                                <div class="badge-item badge-gold">⭐ 五星好评</div>
-                                <div class="badge-item badge-green">✓ 实名认证</div>
-                                <div class="badge-item badge-blue">🎓 专业资格</div>
-                                <div class="badge-item badge-purple">💼 5年工龄</div>
+
+                            <div class="review-snippet" style="border-left: 3px solid #48b1bf; color: #48b1bf; background: #f0f8ff;">
+                                “客户说：<span>小美老师效率超高，家里焕然一新！</span>”
                             </div>
-                            
-                            <div class="provider-skills">
-                                <div class="skills-title">擅长技能</div>
-                                <div class="skills-tags">
-                                    <div class="skill-tag">衣橱整理</div>
-                                    <div class="skill-tag">空间规划</div>
-                                    <div class="skill-tag">断舍离指导</div>
-                                    <div class="skill-tag">搬家收纳</div>
+
+                            <div class="provider-stats-v2">
+                                <div class="stat-item-v2">
+                                    <div class="stat-value-v2 highlight-gold-v2">4.8</div>
+                                    <div class="stat-label-v2">综合评分</div>
                                 </div>
-                            </div>
-                            
-                            <div class="provider-stats">
-                                <div class="provider-stat">
-                                    <div class="stat-value">856</div>
-                                    <div class="stat-label">服务单数</div>
+                                <div class="stat-item-v2">
+                                    <div class="stat-value-v2 highlight-gold-v2">856</div>
+                                    <div class="stat-label-v2">服务单数</div>
                                 </div>
-                                <div class="provider-stat">
-                                    <div class="stat-value">4.8</div>
-                                    <div class="stat-label">综合评分</div>
-                                </div>
-                                <div class="provider-stat">
-                                    <div class="stat-value">96%</div>
-                                    <div class="stat-label">好评率</div>
-                                </div>
-                                <div class="provider-stat">
-                                    <div class="stat-value">45</div>
-                                    <div class="stat-label">笔记</div>
+                                <div class="stat-item-v2">
+                                    <div class="stat-value-v2">96%</div>
+                                    <div class="stat-label-v2">好评率</div>
                                 </div>
                             </div>
-                            
-                            <div class="provider-footer">
-                                <div class="provider-distance">📍 距离您 1.2km</div>
-                                <button class="provider-contact">立即预约</button>
+
+                            <div class="card-footer-v2">
+                                <div class="scarcity-tag" style="background-color: #06beb6;">💡 专享 8 折优惠券</div>
+                                <button class="btn-primary-v2" style="background-color: #48b1bf;">立即咨询 Ta</button>
                             </div>
                         </div>
-                        
-                        <!-- 服务者卡片3 -->
+
                         <div class="provider-card" onclick="showDetail()">
-                            <div class="provider-header">
-                                <div class="provider-avatar-wrapper">
-                                    <div class="provider-avatar" style="background: linear-gradient(135deg, #ff6b6b, #ffa726);">张</div>
+                            <div class="card-header-aura" style="background: linear-gradient(90deg, #ff6b6b 0%, #ffc4c4 50%, #ff6b6b 100%); box-shadow: 0 0 10px rgba(255, 107, 107, 0.6);"></div>
+                            
+                            <div class="card-main-content">
+                                <div class="avatar-wrapper" style="background: linear-gradient(45deg, #ff6b6b, #ff8e53);">
+                                    <img src="https://via.placeholder.com/150/ff6b6b/FFFFFF?text=张" alt="服务师头像">
                                 </div>
-                                <div class="provider-basic">
-                                    <div class="provider-name-line">
+                                
+                                <div class="provider-info">
+                                    <div class="name-and-badges">
                                         <span class="provider-name">张阿姨</span>
-                                        <span class="provider-gender">♀</span>
-                                        <span class="provider-age">45岁</span>
+                                        <span class="badge badge-gold-new">十年工龄</span>
+                                        <span class="badge badge-verified-new">平台认证</span>
                                     </div>
-                                    <div class="provider-role">⭐ 高级保洁师</div>
-                                    <div class="provider-location">
-                                        <span>📍 厦门市集美区</span>
-                                        <span>•</span>
-                                        <span>🏢 好慷在家</span>
-                                    </div>
+                                    <div class="location-anchor">✨ 本月最受欢迎保洁师 | 距您 2.5km</div>
                                 </div>
                             </div>
-                            
-                            <div class="provider-badges">
-                                <div class="badge-item badge-gold">⭐ 五星好评</div>
-                                <div class="badge-item badge-green">✓ 实名认证</div>
-                                <div class="badge-item badge-purple">💼 10年工龄</div>
-                                <div class="badge-item badge-red">🔥 人气服务师</div>
+
+                            <div class="review-snippet" style="border-left: 3px solid #ff6b6b; color: #ff6b6b; background: #fff2f2;">
+                                “客户说：<span>经验丰富，没有搞不定的卫生死角！</span>”
                             </div>
-                            
-                            <div class="provider-skills">
-                                <div class="skills-title">擅长技能</div>
-                                <div class="skills-tags">
-                                    <div class="skill-tag">日常保洁</div>
-                                    <div class="skill-tag">深度清洁</div>
-                                    <div class="skill-tag">窗户清洁</div>
-                                    <div class="skill-tag">地板打蜡</div>
+
+                            <div class="provider-stats-v2">
+                                <div class="stat-item-v2">
+                                    <div class="stat-value-v2 highlight-gold-v2">5.0</div>
+                                    <div class="stat-label-v2">综合评分</div>
                                 </div>
-                            </div>
-                            
-                            <div class="provider-stats">
-                                <div class="provider-stat">
-                                    <div class="stat-value">2,100</div>
-                                    <div class="stat-label">服务单数</div>
+                                <div class="stat-item-v2">
+                                    <div class="stat-value-v2 highlight-gold-v2">2,103</div>
+                                    <div class="stat-label-v2">服务单数</div>
                                 </div>
-                                <div class="provider-stat">
-                                    <div class="stat-value">4.9</div>
-                                    <div class="stat-label">综合评分</div>
-                                </div>
-                                <div class="provider-stat">
-                                    <div class="stat-value">99%</div>
-                                    <div class="stat-label">好评率</div>
-                                </div>
-                                <div class="provider-stat">
-                                    <div class="stat-value">67</div>
-                                    <div class="stat-label">笔记</div>
+                                <div class="stat-item-v2">
+                                    <div class="stat-value-v2">100%</div>
+                                    <div class="stat-label-v2">好评率</div>
                                 </div>
                             </div>
-                            
-                            <div class="provider-footer">
-                                <div class="provider-distance">📍 距离您 2.5km</div>
-                                <button class="provider-contact">立即预约</button>
-                            </div>
-                        </div>
-                        
-                        <!-- 服务者卡片4 -->
-                        <div class="provider-card" onclick="showDetail()">
-                            <div class="provider-header">
-                                <div class="provider-avatar-wrapper">
-                                    <div class="provider-avatar" style="background: linear-gradient(135deg, #fd79a8, #fdcb6e);">刘</div>
-                                    <div class="online-badge"></div>
-                                </div>
-                                <div class="provider-basic">
-                                    <div class="provider-name-line">
-                                        <span class="provider-name">刘月嫂</span>
-                                        <span class="provider-gender">♀</span>
-                                        <span class="provider-age">48岁</span>
-                                    </div>
-                                    <div class="provider-role">⭐ 金牌月嫂</div>
-                                    <div class="provider-location">
-                                        <span>📍 厦门市同安区</span>
-                                        <span>•</span>
-                                        <span>🏢 月子中心</span>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="provider-badges">
-                                <div class="badge-item badge-gold">⭐ 五星好评</div>
-                                <div class="badge-item badge-blue">🎓 高级母婴护理师</div>
-                                <div class="badge-item badge-green">✓ 健康证</div>
-                                <div class="badge-item badge-purple">💼 12年工龄</div>
-                            </div>
-                            
-                            <div class="provider-skills">
-                                <div class="skills-title">擅长技能</div>
-                                <div class="skills-tags">
-                                    <div class="skill-tag">新生儿护理</div>
-                                    <div class="skill-tag">产妇护理</div>
-                                    <div class="skill-tag">母乳指导</div>
-                                    <div class="skill-tag">辅食制作</div>
-                                    <div class="skill-tag">早教启蒙</div>
-                                </div>
-                            </div>
-                            
-                            <div class="provider-stats">
-                                <div class="provider-stat">
-                                    <div class="stat-value">156</div>
-                                    <div class="stat-label">服务单数</div>
-                                </div>
-                                <div class="provider-stat">
-                                    <div class="stat-value">5.0</div>
-                                    <div class="stat-label">综合评分</div>
-                                </div>
-                                <div class="provider-stat">
-                                    <div class="stat-value">100%</div>
-                                    <div class="stat-label">好评率</div>
-                                </div>
-                                <div class="provider-stat">
-                                    <div class="stat-value">89</div>
-                                    <div class="stat-label">笔记</div>
-                                </div>
-                            </div>
-                            
-                            <div class="provider-footer">
-                                <div class="provider-distance">📍 距离您 3.8km</div>
-                                <button class="provider-contact">立即预约</button>
+
+                            <div class="card-footer-v2">
+                                <div class="scarcity-tag">🚀 极速响应</div>
+                                <button class="btn-primary-v2" style="background-color: #ff6b6b;">立即预约</button>
                             </div>
                         </div>
                     </div>
                 </div>
                 
-                <!-- 距离优先Tab -->
                 <div id="distance-tab" class="tab-content">
-                    <div style="padding: 12px 15px; background: #f0f8ff; border-bottom: 1px solid #e0f0ff;">
-                        <div style="font-size: 13px; color: #576b95; margin-bottom: 10px;">
-                            <span style="font-weight: 600;">距离排序</span> · 由近到远为您推荐
-                        </div>
-                        <div class="distance-tabs">
-                            <div class="distance-tab active">1km内</div>
-                            <div class="distance-tab">3km内</div>
-                            <div class="distance-tab">5km内</div>
-                            <div class="distance-tab">全城</div>
-                        </div>
-                    </div>
-                    <div class="provider-grid">
-                        <!-- 王春燕 - 0.8km -->
-                        <div class="provider-card" onclick="showDetail()">
-                            <div class="provider-header">
-                                <div class="provider-avatar-wrapper">
-                                    <div class="provider-avatar">王</div>
-                                    <div class="online-badge"></div>
-                                </div>
-                                <div class="provider-basic">
-                                    <div class="provider-name-line">
-                                        <span class="provider-name">王春燕</span>
-                                        <span class="provider-gender">♀</span>
-                                        <span class="provider-age">42岁</span>
-                                    </div>
-                                    <div class="provider-role">⭐ 金牌保洁师</div>
-                                    <div class="provider-location">
-                                        <span>📍 厦门市思明区</span>
-                                        <span>•</span>
-                                        <span>🏢 好慷在家</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="provider-badges">
-                                <div class="badge-item badge-gold">⭐ 五星好评</div>
-                                <div class="badge-item badge-blue">🏆 月度之星</div>
-                                <div class="badge-item badge-green">✓ 实名认证</div>
-                            </div>
-                            <div class="provider-stats">
-                                <div class="provider-stat">
-                                    <div class="stat-value">1,245</div>
-                                    <div class="stat-label">服务单数</div>
-                                </div>
-                                <div class="provider-stat">
-                                    <div class="stat-value">4.9</div>
-                                    <div class="stat-label">综合评分</div>
-                                </div>
-                            </div>
-                            <div class="provider-footer">
-                                <div class="provider-distance">📍 距离您 0.8km</div>
-                                <button class="provider-contact">立即预约</button>
-                            </div>
-                        </div>
-                        
-                        <!-- 李小美 - 1.2km -->
-                        <div class="provider-card" onclick="showDetail()">
-                            <div class="provider-header">
-                                <div class="provider-avatar-wrapper">
-                                    <div class="provider-avatar" style="background: linear-gradient(135deg, #06beb6, #48b1bf);">李</div>
-                                    <div class="online-badge"></div>
-                                </div>
-                                <div class="provider-basic">
-                                    <div class="provider-name-line">
-                                        <span class="provider-name">李小美</span>
-                                        <span class="provider-gender">♀</span>
-                                        <span class="provider-age">38岁</span>
-                                    </div>
-                                    <div class="provider-role">⭐ 专业收纳师</div>
-                                    <div class="provider-location">
-                                        <span>📍 厦门市湖里区</span>
-                                        <span>•</span>
-                                        <span>🏢 好邦妮</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="provider-badges">
-                                <div class="badge-item badge-gold">⭐ 五星好评</div>
-                                <div class="badge-item badge-green">✓ 实名认证</div>
-                            </div>
-                            <div class="provider-stats">
-                                <div class="provider-stat">
-                                    <div class="stat-value">856</div>
-                                    <div class="stat-label">服务单数</div>
-                                </div>
-                                <div class="provider-stat">
-                                    <div class="stat-value">4.8</div>
-                                    <div class="stat-label">综合评分</div>
-                                </div>
-                            </div>
-                            <div class="provider-footer">
-                                <div class="provider-distance">📍 距离您 1.2km</div>
-                                <button class="provider-contact">立即预约</button>
-                            </div>
-                        </div>
-                    </div>
+                    <div style="padding: 15px; text-align: center; color: #999;">距离优先列表内容</div>
                 </div>
                 
-                <!-- 好评优先Tab -->
                 <div id="rating-tab" class="tab-content">
-                    <div style="padding: 12px 15px; background: #fff9f0; border-bottom: 1px solid #ffe8cc;">
-                        <div style="font-size: 13px; color: #ff8c00;">
-                            <span style="font-weight: 600;">好评排序</span> · 高分高口碑服务者优先
-                        </div>
-                    </div>
-                    <div class="provider-grid">
-                        <!-- 刘月嫂 - 5.0分 100%好评 -->
-                        <div class="provider-card" onclick="showDetail()">
-                            <div class="provider-header">
-                                <div class="provider-avatar-wrapper">
-                                    <div class="provider-avatar" style="background: linear-gradient(135deg, #fd79a8, #fdcb6e);">刘</div>
-                                    <div class="online-badge"></div>
-                                </div>
-                                <div class="provider-basic">
-                                    <div class="provider-name-line">
-                                        <span class="provider-name">刘月嫂</span>
-                                        <span class="provider-gender">♀</span>
-                                        <span class="provider-age">48岁</span>
-                                    </div>
-                                    <div class="provider-role">⭐ 金牌月嫂</div>
-                                    <div class="provider-location">
-                                        <span>📍 厦门市同安区</span>
-                                        <span>•</span>
-                                        <span>🏢 月子中心</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="provider-badges">
-                                <div class="badge-item badge-gold">⭐ 满分好评</div>
-                                <div class="badge-item badge-blue">🎓 高级护理师</div>
-                                <div class="badge-item badge-red">🔥 人气王</div>
-                            </div>
-                            <div class="provider-stats">
-                                <div class="provider-stat">
-                                    <div class="stat-value">156</div>
-                                    <div class="stat-label">服务单数</div>
-                                </div>
-                                <div class="provider-stat">
-                                    <div class="stat-value" style="color: #ff6b6b;">5.0</div>
-                                    <div class="stat-label">综合评分</div>
-                                </div>
-                                <div class="provider-stat">
-                                    <div class="stat-value" style="color: #ff6b6b;">100%</div>
-                                    <div class="stat-label">好评率</div>
-                                </div>
-                            </div>
-                            <div class="provider-footer">
-                                <div class="provider-distance">📍 距离您 3.8km</div>
-                                <button class="provider-contact">立即预约</button>
-                            </div>
-                        </div>
-                        
-                        <!-- 王春燕 - 4.9分 98%好评 -->
-                        <div class="provider-card" onclick="showDetail()">
-                            <div class="provider-header">
-                                <div class="provider-avatar-wrapper">
-                                    <div class="provider-avatar">王</div>
-                                    <div class="online-badge"></div>
-                                </div>
-                                <div class="provider-basic">
-                                    <div class="provider-name-line">
-                                        <span class="provider-name">王春燕</span>
-                                        <span class="provider-gender">♀</span>
-                                        <span class="provider-age">42岁</span>
-                                    </div>
-                                    <div class="provider-role">⭐ 金牌保洁师</div>
-                                </div>
-                            </div>
-                            <div class="provider-badges">
-                                <div class="badge-item badge-gold">⭐ 五星好评</div>
-                                <div class="badge-item badge-blue">🏆 月度之星</div>
-                            </div>
-                            <div class="provider-stats">
-                                <div class="provider-stat">
-                                    <div class="stat-value">1,245</div>
-                                    <div class="stat-label">服务单数</div>
-                                </div>
-                                <div class="provider-stat">
-                                    <div class="stat-value" style="color: #07c160;">4.9</div>
-                                    <div class="stat-label">综合评分</div>
-                                </div>
-                                <div class="provider-stat">
-                                    <div class="stat-value" style="color: #07c160;">98%</div>
-                                    <div class="stat-label">好评率</div>
-                                </div>
-                            </div>
-                            <div class="provider-footer">
-                                <div class="provider-distance">📍 距离您 0.8km</div>
-                                <button class="provider-contact">立即预约</button>
-                            </div>
-                        </div>
-                    </div>
+                    <div style="padding: 15px; text-align: center; color: #999;">好评优先列表内容</div>
                 </div>
                 
-                <!-- 接单最多Tab -->
                 <div id="orders-tab" class="tab-content">
-                    <div style="padding: 12px 15px; background: #f0fff4; border-bottom: 1px solid #d0f0e0;">
-                        <div style="font-size: 13px; color: #07c160;">
-                            <span style="font-weight: 600;">接单排序</span> · 经验丰富的资深服务者
-                        </div>
-                    </div>
-                    <div class="provider-grid">
-                        <!-- 张阿姨 - 2100单 -->
-                        <div class="provider-card" onclick="showDetail()">
-                            <div class="provider-header">
-                                <div class="provider-avatar-wrapper">
-                                    <div class="provider-avatar" style="background: linear-gradient(135deg, #ff6b6b, #ffa726);">张</div>
-                                </div>
-                                <div class="provider-basic">
-                                    <div class="provider-name-line">
-                                        <span class="provider-name">张阿姨</span>
-                                        <span class="provider-gender">♀</span>
-                                        <span class="provider-age">45岁</span>
-                                    </div>
-                                    <div class="provider-role">⭐ 高级保洁师</div>
-                                    <div class="provider-location">
-                                        <span>📍 厦门市集美区</span>
-                                        <span>•</span>
-                                        <span>🏢 好慷在家</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="provider-badges">
-                                <div class="badge-item badge-gold">⭐ 五星好评</div>
-                                <div class="badge-item badge-purple">💼 10年工龄</div>
-                                <div class="badge-item badge-red">🔥 人气服务师</div>
-                            </div>
-                            <div class="provider-stats">
-                                <div class="provider-stat">
-                                    <div class="stat-value" style="color: #ff6b6b;">2,100</div>
-                                    <div class="stat-label">服务单数</div>
-                                </div>
-                                <div class="provider-stat">
-                                    <div class="stat-value">4.9</div>
-                                    <div class="stat-label">综合评分</div>
-                                </div>
-                                <div class="provider-stat">
-                                    <div class="stat-value">99%</div>
-                                    <div class="stat-label">好评率</div>
-                                </div>
-                            </div>
-                            <div class="provider-footer">
-                                <div class="provider-distance">📍 距离您 2.5km</div>
-                                <button class="provider-contact">立即预约</button>
-                            </div>
-                        </div>
-                        
-                        <!-- 王春燕 - 1245单 -->
-                        <div class="provider-card" onclick="showDetail()">
-                            <div class="provider-header">
-                                <div class="provider-avatar-wrapper">
-                                    <div class="provider-avatar">王</div>
-                                    <div class="online-badge"></div>
-                                </div>
-                                <div class="provider-basic">
-                                    <div class="provider-name-line">
-                                        <span class="provider-name">王春燕</span>
-                                        <span class="provider-gender">♀</span>
-                                        <span class="provider-age">42岁</span>
-                                    </div>
-                                    <div class="provider-role">⭐ 金牌保洁师</div>
-                                </div>
-                            </div>
-                            <div class="provider-badges">
-                                <div class="badge-item badge-gold">⭐ 五星好评</div>
-                                <div class="badge-item badge-blue">🏆 月度之星</div>
-                            </div>
-                            <div class="provider-stats">
-                                <div class="provider-stat">
-                                    <div class="stat-value" style="color: #07c160;">1,245</div>
-                                    <div class="stat-label">服务单数</div>
-                                </div>
-                                <div class="provider-stat">
-                                    <div class="stat-value">4.9</div>
-                                    <div class="stat-label">综合评分</div>
-                                </div>
-                                <div class="provider-stat">
-                                    <div class="stat-value">98%</div>
-                                    <div class="stat-label">好评率</div>
-                                </div>
-                            </div>
-                            <div class="provider-footer">
-                                <div class="provider-distance">📍 距离您 0.8km</div>
-                                <button class="provider-contact">立即预约</button>
-                            </div>
-                        </div>
-                    </div>
+                    <div style="padding: 15px; text-align: center; color: #999;">接单最多列表内容</div>
                 </div>
                 
-                <!-- 其他原有内容删除 -->
             </div>
+
             
-            </div>
-            
-            <!-- 关注Tab -->
             <div id="follow" class="tab-content">
                 <div class="follow-content">
-                    <div class="timeline-item" onclick="showDetail()">
+                    <div class="timeline-item">
                         <div class="timeline-avatar">王</div>
                         <div class="timeline-main">
-                            <div class="timeline-name">王春燕</div>
+                            <div class="timeline-name">王春燕 发布了新笔记</div>
                             <div class="timeline-meta">
-                                <span class="timeline-role">保洁师</span>
-                                <span class="company-tag">好慷在家</span>
-                                <span class="cert-badge">⭐认证</span>
-                                <span style="color: #999; font-size: 11px;">2小时前</span>
+                                <div class="timeline-role">保洁师</div>
+                                <span>15分钟前</span>
                             </div>
-                            <div class="timeline-text">今天遇到超级顽固的油渍，用了这个方法竟然轻松搞定！分享给大家～客户直夸专业💪</div>
+                            <div class="timeline-text">今日分享：如何用小苏打轻松去除水龙头上的水垢，效果惊人！</div>
                             <div class="timeline-actions">
-                                <span>👍 赞 45</span>
-                                <span>💬 评论 12</span>
-                                <span>📤 分享</span>
+                                <span>👍 15</span>
+                                <span>💬 5</span>
                             </div>
                         </div>
                     </div>
                     
-                    <div class="timeline-item" onclick="showDetail()">
+                    <div class="timeline-item">
                         <div class="timeline-avatar">李</div>
                         <div class="timeline-main">
-                            <div class="timeline-name">李小美</div>
+                            <div class="timeline-name">李小美 更新了服务日程</div>
                             <div class="timeline-meta">
-                                <span class="timeline-role">收纳师</span>
-                                <span class="company-tag">好邦妮</span>
-                                <span class="cert-badge">⭐认证</span>
-                                <span style="color: #999; font-size: 11px;">5小时前</span>
+                                <div class="timeline-role">收纳师</div>
+                                <span>1小时前</span>
                             </div>
-                            <div class="timeline-text">客户家的衣柜改造完成！从杂乱无章到井然有序，成就感满满💪</div>
+                            <div class="timeline-text">下周有少量空余时段可预约，需要的客户请尽快！</div>
                             <div class="timeline-actions">
-                                <span>👍 赞 67</span>
-                                <span>💬 评论 8</span>
-                                <span>📤 分享</span>
+                                <span>👍 3</span>
+                                <span>💬 1</span>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
             
-            <!-- 附近Tab -->
             <div id="nearby" class="tab-content">
                 <div class="nearby-content">
                     <div class="location-header">
                         <div class="current-location">
-                            <span>📍</span>
-                            <span>当前位置：厦门市思明区</span>
+                            <span>当前位置：厦门市思明区软件园</span>
+                            <span>▶︎</span>
                         </div>
                         <div class="distance-tabs">
-                            <div class="distance-tab active">1km内</div>
-                            <div class="distance-tab">3km内</div>
-                            <div class="distance-tab">5km内</div>
-                            <div class="distance-tab">全城</div>
+                            <div class="distance-tab active">500m</div>
+                            <div class="distance-tab">1km</div>
+                            <div class="distance-tab">3km</div>
+                            <div class="distance-tab">全部</div>
                         </div>
                     </div>
-                    
                     <div class="nearby-list">
-                        <div class="nearby-item" onclick="showDetail()">
-                            <div class="nearby-title">深度清洁服务完成，客户超满意！</div>
-                            <div style="font-size: 11px; color: #666; margin-bottom: 4px;">
-                                王春燕 • 保洁师 • 
-                                <span class="company-tag">好慷在家</span>
-                                <span class="cert-badge">✓认证</span>
-                            </div>
-                            <div style="font-size: 11px; color: #999;">📍 0.8km • ❤️ 45 • 💬 12 • ⏰ 1小时前</div>
+                        <div class="nearby-item">
+                            <div class="nearby-title">🛁 浴室瓷砖美缝服务</div>
+                            <div style="font-size: 12px; color: #999;">距您 200m | 附近 5 次服务记录</div>
                         </div>
-                        
-                        <div class="nearby-item" onclick="showDetail()">
-                            <div class="nearby-title">收纳整理后的效果，太治愈了</div>
-                            <div style="font-size: 11px; color: #666; margin-bottom: 4px;">
-                                李小美 • 收纳师 • 
-                                <span class="company-tag">好邦妮</span>
-                                <span class="cert-badge">✓认证</span>
-                            </div>
-                            <div style="font-size: 11px; color: #999;">📍 1.2km • ❤️ 67 • 💬 8 • ⏰ 3小时前</div>
+                        <div class="nearby-item">
+                            <div class="nearby-title">💡 软装搭配笔记</div>
+                            <div style="font-size: 12px; color: #999;">距您 450m | 附近用户点赞</div>
                         </div>
                     </div>
                 </div>
             </div>
             
-            <!-- 热门Tab -->
             <div id="hot" class="tab-content">
                 <div class="hot-content">
                     <div class="hot-header">
-                        <div class="hot-title">🔥 本周热门榜</div>
-                        <div style="font-size: 12px; opacity: 0.9;">最受欢迎的服务分享</div>
+                        <div class="hot-title">🏆 热门排行榜</div>
+                        <div style="font-size: 12px; opacity: 0.9;">最近一周热度最高的笔记和服务师</div>
                     </div>
-                    
                     <div class="ranking-list">
-                        <div class="ranking-item" onclick="showDetail()">
+                        <div class="ranking-item">
                             <div class="ranking-number top">1</div>
                             <div class="ranking-info">
-                                <div class="ranking-title">油烟机深度清洁神技，3小时变新机！</div>
-                                <div style="font-size: 11px; color: #999;">王春燕 • 👍 1.2k • 💬 156</div>
+                                <div class="ranking-title">王春燕：油烟机深度清洁技巧</div>
+                                <div style="font-size: 12px; color: #999;">🔥 2.3k热度 | 268赞</div>
                             </div>
-                            <div style="background: linear-gradient(135deg, #ff6b6b, #ff8e53); color: white; padding: 3px 8px; border-radius: 8px; font-size: 10px;">爆火</div>
                         </div>
-                        
-                        <div class="ranking-item" onclick="showDetail()">
+                        <div class="ranking-item">
                             <div class="ranking-number top">2</div>
                             <div class="ranking-info">
-                                <div class="ranking-title">小户型收纳大法，空间瞬间翻倍</div>
-                                <div style="font-size: 11px; color: #999;">李小美 • 👍 896 • 💬 89</div>
+                                <div class="ranking-title">李小美：高效衣橱整理法</div>
+                                <div style="font-size: 12px; color: #999;">🔥 1.8k热度 | 156赞</div>
                             </div>
-                            <div style="background: linear-gradient(135deg, #ff6b6b, #ff8e53); color: white; padding: 3px 8px; border-radius: 8px; font-size: 10px;">热门</div>
                         </div>
-                        
-                        <div class="ranking-item" onclick="showDetail()">
-                            <div class="ranking-number top">3</div>
+                        <div class="ranking-item">
+                            <div class="ranking-number normal">3</div>
                             <div class="ranking-info">
-                                <div class="ranking-title">新手妈妈必看！新生儿护理全攻略</div>
-                                <div style="font-size: 11px; color: #999;">刘月嫂 • 👍 756 • 💬 124</div>
+                                <div class="ranking-title">家政服务师认证考试攻略</div>
+                                <div style="font-size: 12px; color: #999;">🔥 1.2k热度 | 98赞</div>
                             </div>
-                            <div style="background: linear-gradient(135deg, #ff6b6b, #ff8e53); color: white; padding: 3px 8px; border-radius: 8px; font-size: 10px;">实用</div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
         
-        <!-- 发现页 -->
         <div id="discoverPage" class="page-content">
             <div class="discover-page">
-                <div class="section-title">🔥 热门话题</div>
+                <div class="section-title">热门服务分类</div>
                 <div class="topic-grid">
                     <div class="topic-card">
                         <div class="topic-icon">🧹</div>
-                        <div class="topic-name">深度清洁挑战</div>
-                        <div class="topic-count">1.2k 参与</div>
-                    </div>
-                    <div class="topic-card">
-                        <div class="topic-icon">📦</div>
-                        <div class="topic-name">收纳神技</div>
-                        <div class="topic-count">856 参与</div>
+                        <div class="topic-name">日常保洁</div>
+                        <div class="topic-count">1.5万+服务师</div>
                     </div>
                     <div class="topic-card">
                         <div class="topic-icon">👶</div>
-                        <div class="topic-name">育儿日记</div>
-                        <div class="topic-count">2.3k 参与</div>
+                        <div class="topic-name">育婴月嫂</div>
+                        <div class="topic-count">8千+服务师</div>
                     </div>
                     <div class="topic-card">
-                        <div class="topic-icon">🍳</div>
-                        <div class="topic-name">美食制作</div>
-                        <div class="topic-count">678 参与</div>
+                        <div class="topic-icon">🗄️</div>
+                        <div class="topic-name">衣橱收纳</div>
+                        <div class="topic-count">5千+服务师</div>
+                    </div>
+                    <div class="topic-card">
+                        <div class="topic-icon">⚙️</div>
+                        <div class="topic-name">家电清洗</div>
+                        <div class="topic-count">9千+服务师</div>
                     </div>
                 </div>
-            </div>
+                
+                <div class="section-title">优质内容专题</div>
+                </div>
         </div>
         
-        <!-- 消息页 -->
         <div id="messagePage" class="page-content">
             <div class="message-page">
                 <div class="message-tabs">
-                    <div class="message-tab active">全部</div>
-                    <div class="message-tab">点赞</div>
-                    <div class="message-tab">评论</div>
-                    <div class="message-tab">关注</div>
+                    <div class="message-tab active">聊天</div>
                     <div class="message-tab">通知</div>
+                    <div class="message-tab">服务通知</div>
                 </div>
-                
-                <div class="message-item">
-                    <div class="message-name">张阿姨 <span style="background: #ff3b30; color: white; font-size: 10px; padding: 2px 5px; border-radius: 10px;">3</span></div>
-                    <div class="message-text">赞了你的笔记《油烟机深度清洁神技》，并评论：这个方法太实用了！</div>
-                    <div style="font-size: 11px; color: #999; margin-top: 4px;">2小时前</div>
-                </div>
-                
-                <div class="message-item">
-                    <div class="message-name">🎉 系统通知</div>
-                    <div class="message-text">恭喜你！你的笔记《油烟机深度清洁》入选本周热门榜TOP3🎊</div>
-                    <div style="font-size: 11px; color: #999; margin-top: 4px;">1天前</div>
-                </div>
-                
-                <div class="message-item">
-                    <div class="message-name">李小美</div>
-                    <div class="message-text">关注了你，快去看看TA的主页吧～</div>
-                    <div style="font-size: 11px; color: #999; margin-top: 4px;">2天前</div>
+                <div class="message-list">
+                    <div class="message-item">
+                        <div class="message-name">王春燕 (保洁师)</div>
+                        <div class="message-text">您好，您预约的周六服务已确认。</div>
+                    </div>
+                    <div class="message-item">
+                        <div class="message-name">系统通知</div>
+                        <div class="message-text">您有一个新的订单优惠券待领取。</div>
+                    </div>
                 </div>
             </div>
         </div>
         
-        <!-- 我的页 -->
         <div id="profilePage" class="page-content">
             <div class="profile-page">
                 <div class="profile-header">
                     <div class="profile-info">
-                        <div class="profile-avatar">王</div>
-                        <div style="flex: 1;">
-                            <div class="profile-name">王春燕</div>
-                            <div style="font-size: 13px; opacity: 0.9;">好慷在家 • 金牌保洁师 ⭐</div>
+                        <div class="profile-avatar">S</div>
+                        <div>
+                            <div class="profile-name">Sarah 用户</div>
+                            <div style="font-size: 12px; opacity: 0.9;">查看个人主页 ▶︎</div>
                         </div>
                     </div>
                     <div class="profile-stats">
                         <div class="stat-item">
-                            <div class="stat-number">28</div>
-                            <div class="stat-label">笔记</div>
+                            <div class="stat-number">12</div>
+                            <div class="stat-label">订单</div>
                         </div>
                         <div class="stat-item">
-                            <div class="stat-number">1.2k</div>
-                            <div class="stat-label">获赞</div>
+                            <div class="stat-number">3</div>
+                            <div class="stat-label">关注</div>
                         </div>
                         <div class="stat-item">
-                            <div class="stat-number">156</div>
-                            <div class="stat-label">粉丝</div>
+                            <div class="stat-number">8</div>
+                            <div class="stat-label">收藏</div>
                         </div>
                     </div>
                 </div>
@@ -1432,244 +1222,241 @@
                 <div class="profile-menu">
                     <div class="menu-section">
                         <div class="menu-item">
-                            <div class="menu-icon">📝</div>
-                            <div class="menu-text">我的笔记</div>
-                            <div>›</div>
+                            <span class="menu-icon">💳</span>
+                            <span class="menu-text">我的钱包/优惠券</span>
+                            <span>▶︎</span>
                         </div>
                         <div class="menu-item">
-                            <div class="menu-icon">❤️</div>
-                            <div class="menu-text">我的点赞</div>
-                            <div>›</div>
-                        </div>
-                        <div class="menu-item">
-                            <div class="menu-icon">⭐</div>
-                            <div class="menu-text">我的收藏</div>
-                            <div>›</div>
-                        </div>
-                    </div>
-                    
-                    <div class="menu-section">
-                        <div class="menu-item">
-                            <div class="menu-icon">🏆</div>
-                            <div class="menu-text">我的成就</div>
-                            <div>›</div>
-                        </div>
-                        <div class="menu-item">
-                            <div class="menu-icon">💰</div>
-                            <div class="menu-text">积分商城</div>
-                            <div>›</div>
-                        </div>
-                    </div>
-                    
-                    <div class="menu-section">
-                        <div class="menu-item">
-                            <div class="menu-icon">⚙️</div>
-                            <div class="menu-text">设置</div>
-                            <div>›</div>
+                            <span class="menu-icon">💬</span>
+                            <span class="menu-text">意见反馈</span>
+                            <span>▶︎</span>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+    </div>
+    
+    <div id="roleModelPage" class="role-model-page">
+        <div class="role-model-page-header">
+            <span class="back-btn" onclick="goBackFromRoleModel()">❮</span>
+            <div class="page-title-new">品牌榜样人物故事</div>
+        </div>
         
-        <div class="fab">+</div>
-        
-        <div class="tabbar">
-            <div class="tabbar-item active" onclick="switchPage('home')">
-                <div class="tabbar-icon">🏠</div>
-                <span>首页</span>
+        <div class="role-model-page-content">
+            
+            <div class="story-card-v2" onclick="showDetail()">
+                <div class="story-image-v2" style="background: linear-gradient(135deg, #06beb6, #48b1bf);">
+                    <div class="story-tag-v2" style="background: #06beb6;">十年如一</div>
+                    🏅 十年0投诉的保洁师
+                </div>
+                <div class="story-body-v2">
+                    <div class="story-title-v2">十年如一日的坚守：她如何做到零投诉，成为客户心中的金牌榜样？</div>
+                    <div class="story-excerpt-v2">王春燕，从事家政服务已满十年，她的服务单数超过 5000 份，但至今保持着一个令人难以置信的记录——零投诉。这份荣誉背后，是她对每一个细节的极致追求...</div>
+                    <div class="story-author-v2">
+                        <div class="story-avatar-v2">王</div>
+                        <div>
+                            <div class="story-name-v2">王春燕</div>
+                            <div class="story-role-v2">五星金牌保洁师</div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="tabbar-item" onclick="switchPage('discover')">
-                <div class="tabbar-icon">🔍</div>
-                <span>发现</span>
+
+            <div class="story-card-v2" onclick="showDetail()">
+                <div class="story-image-v2" style="background: linear-gradient(135deg, #ff6b6b, #ffa726);">
+                    <div class="story-tag-v2" style="background: #ff6b6b;">诚信为本</div>
+                    💎 拾金不昧的收纳师
+                </div>
+                <div class="story-body-v2">
+                    <div class="story-title-v2">一次收纳，找回客户丢失的婚戒：诚信，是比技巧更重要的品质。</div>
+                    <div class="story-excerpt-v2">收纳师李小美在一次衣橱整理过程中，意外发现了客户遗失多年的婚戒。她毫不犹豫地归还，客户感动之余，将她的故事分享给了更多人。诚信，让她成为了品牌的代言人...</div>
+                    <div class="story-author-v2">
+                        <div class="story-avatar-v2" style="background: linear-gradient(45deg, #ff6b6b, #ff8e53);">李</div>
+                        <div>
+                            <div class="story-name-v2">李小美</div>
+                            <div class="story-role-v2">专业收纳师</div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="tabbar-item" onclick="switchPage('message')">
-                <div class="tabbar-icon" style="position: relative;">💬<span class="badge">5</span></div>
-                <span>消息</span>
+            
+            <div class="story-card-v2" onclick="showDetail()">
+                <div class="story-image-v2" style="background: linear-gradient(135deg, #667eea, #764ba2);">
+                    <div class="story-tag-v2" style="background: #667eea;">专业救援</div>
+                    🔥 抢救火灾损失的师傅
+                </div>
+                <div class="story-body-v2">
+                    <div class="story-title-v2">危机时刻显身手：维修师傅张工如何在最短时间内将客户损失降到最低？</div>
+                    <div class="story-excerpt-v2">在一次电路短路引起的火灾中，张工在现场迅速反应，及时切断电源并协助扑灭初期火势。他的专业知识和临危不乱，为客户保住了大部分财产...</div>
+                    <div class="story-author-v2">
+                        <div class="story-avatar-v2" style="background: linear-gradient(45deg, #667eea, #764ba2);">张</div>
+                        <div>
+                            <div class="story-name-v2">张师傅</div>
+                            <div class="story-role-v2">家电维修专家</div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="tabbar-item" onclick="switchPage('profile')">
-                <div class="tabbar-icon">👤</div>
-                <span>我的</span>
-            </div>
+            
         </div>
     </div>
     
-    <!-- 详情弹窗 -->
-    <div class="detail-modal" id="detailModal" onclick="closeIfOverlay(event)">
+    <div id="detailModal" class="detail-modal">
         <div class="detail-container">
             <div class="detail-header">
-                <span style="opacity:0">占位</span>
+                <div style="font-size: 16px; font-weight: 600;">笔记详情</div>
                 <span class="detail-close" onclick="closeDetail()">✕</span>
             </div>
             
             <div class="detail-author-card">
                 <div class="detail-author-main">
-                    <div class="detail-avatar">刘</div>
+                    <div class="detail-avatar">王</div>
                     <div class="detail-author-info">
-                        <div class="detail-name">刘玉静 • 青岛/保洁师</div>
+                        <div class="detail-name">王春燕</div>
                         <div class="detail-tags">
-                            <span class="role-tag">⭐ 24分</span>
-                            <span class="company-tag">好慷在家</span>
-                            <span class="cert-badge">✓认证</span>
+                            <span class="role-tag">金牌保洁师</span>
+                            <span class="role-tag">✓ 认证</span>
                         </div>
                     </div>
-                    <button class="detail-follow-btn">认可TA</button>
+                    <button class="detail-follow-btn">关注</button>
                 </div>
-                <div style="font-size: 12px; color: #999;">⏰ 1.4万小时 • 📍 服务足迹27 • ⭐ 评价</div>
             </div>
             
-            <div class="detail-image">十年庆典蛋糕图片</div>
-            
             <div class="detail-content">
-                <h1 class="detail-title">十年！</h1>
-                <div class="detail-text">十年！
-
-我们的十年，有坚持，有努力，还有不懈的追求。相信未来的十年我们一起继续加油💪</div>
-                <div style="display: inline-flex; align-items: center; gap: 4px; background: #e8f4fd; color: #576b95; padding: 5px 12px; border-radius: 15px; font-size: 13px; margin-bottom: 12px;">💎 我与好慷的小确幸</div>
-                <div style="font-size: 12px; color: #999;">2025-09-29 10:40:39 • 青岛</div>
+                <div class="detail-image">笔记图片/视频</div>
+                <div class="detail-title">油烟机深度清洁，3小时搞定！客户超满意</div>
+                <div class="detail-text">
+                    [这里是笔记正文]
+                    今天接了一个超级顽固的油烟机清洁单，积油已经形成厚厚的块状。经过我专业的“3步去油法”：
+                    1. 蒸汽软化
+                    2. 强力分解剂浸泡
+                    3. 高压冲洗
+                    终于让它焕然一新，客户看了连连称赞！作为金牌保洁师，我最擅长处理各种厨房油污难题。
+                </div>
             </div>
             
             <div class="detail-service-card">
-                <div class="detail-service-badge">不满意重做</div>
+                <div class="detail-service-badge">王春燕推荐</div>
                 <div class="detail-service-main">
-                    <div class="detail-service-image">保洁服务图</div>
+                    <div class="detail-service-image">深度清洁服务</div>
                     <div class="detail-service-info">
-                        <div class="detail-service-title">全屋日式保洁</div>
+                        <div class="detail-service-title">【专业级】油烟机清洗套餐</div>
                         <div class="detail-service-tags">
-                            <span class="detail-service-tag">6区40项标准</span>
-                            <span class="detail-service-tag">120㎡以下</span>
-                            <span class="detail-service-tag">自营员工</span>
+                            <span class="detail-service-tag">4.9分</span>
+                            <span class="detail-service-tag">除菌率99%</span>
+                            <span class="detail-service-tag">3小时起</span>
                         </div>
-                        <div class="detail-service-desc">全屋6区保洁+基础擦窗，窗明几净</div>
+                        <div class="detail-service-bottom">
+                            <div style="font-size: 16px; color: #ff6b6b; font-weight: 600;">¥198 <span style="font-size: 12px; color: #999;">起</span></div>
+                            <button class="detail-book-btn">立即预约</button>
+                        </div>
                     </div>
-                </div>
-                <div class="detail-service-bottom">
-                    <div style="font-size: 12px; color: #999;">高品质服务 · 专业团队</div>
-                    <button class="detail-book-btn">立即预定</button>
                 </div>
             </div>
             
             <div class="detail-related">
-                <div class="section-title">相关服务日记</div>
+                <div class="section-title">相关笔记推荐</div>
                 <div class="detail-related-grid">
                     <div class="detail-related-card">
                         <div class="detail-related-image">
-                            <div class="detail-video-badge">▶ 抖音</div>
-                            <div class="detail-location-badge">📍 北京</div>
-                            中秋月饼
+                            <div class="detail-video-badge">▶︎ 01:30</div>
+                            视频笔记
                         </div>
                         <div class="detail-related-content">
-                            <div class="detail-related-title">中秋节客户送的月饼提前祝朋友们节日快乐！！</div>
+                            <div class="detail-related-title">空调深度清洗步骤详解</div>
                             <div class="detail-related-author">
                                 <div class="detail-related-avatar"></div>
-                                <span class="detail-related-name">草承菊</span>
+                                <div class="detail-related-name">张师傅</div>
                             </div>
                         </div>
                     </div>
-                    
                     <div class="detail-related-card">
                         <div class="detail-related-image" style="background: linear-gradient(135deg, #06beb6, #48b1bf);">
-                            <div class="detail-location-badge">📍 北京</div>
-                            员工活动
+                            <div class="detail-location-badge">📍 附近</div>
+                            图文笔记
                         </div>
                         <div class="detail-related-content">
-                            <div class="detail-related-title">好慷员工节旅游啦</div>
+                            <div class="detail-related-title">家庭收纳好物清单</div>
                             <div class="detail-related-author">
                                 <div class="detail-related-avatar"></div>
-                                <span class="detail-related-name">刘淑贤</span>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="detail-related-card">
-                        <div class="detail-related-image" style="background: linear-gradient(135deg, #fd79a8, #fdcb6e);">
-                            <div class="detail-location-badge">📍 上海</div>
-                            收纳整理
-                        </div>
-                        <div class="detail-related-content">
-                            <div class="detail-related-title">7年保洁姐，用心服务啦</div>
-                            <div class="detail-related-author">
-                                <div class="detail-related-avatar"></div>
-                                <span class="detail-related-name">王阿姨</span>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="detail-related-card">
-                        <div class="detail-related-image" style="background: linear-gradient(135deg, #667eea, #764ba2);">
-                            <div class="detail-location-badge">📍 深圳</div>
-                            清洁工具
-                        </div>
-                        <div class="detail-related-content">
-                            <div class="detail-related-title">深度清洁工具分享</div>
-                            <div class="detail-related-author">
-                                <div class="detail-related-avatar"></div>
-                                <span class="detail-related-name">李师傅</span>
+                                <div class="detail-related-name">李小美</div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        
+            
         <div class="detail-action-bar">
-            <input type="text" class="detail-comment-input" placeholder="说点什么...">
-            <button class="detail-action-btn" onclick="event.stopPropagation(); toggleLike(this)">
-                <span class="detail-action-icon">♡</span>
-                <span>点赞</span>
+            <input type="text" class="detail-comment-input" placeholder="发表评论...">
+            <button class="detail-action-btn active">
+                <span class="detail-action-icon">❤️</span> 268
             </button>
-            <button class="detail-action-btn" onclick="event.stopPropagation()">
-                <span class="detail-action-icon">⭐</span>
-                <span>收藏</span>
+            <button class="detail-action-btn">
+                <span class="detail-action-icon">💬</span> 45
             </button>
-            <button class="detail-action-btn" onclick="event.stopPropagation()">
-                <span class="detail-action-icon">💬</span>
-                <span>评论</span>
+            <button class="detail-action-btn">
+                <span class="detail-action-icon">⭐️</span> 12
             </button>
-            <span style="font-size: 22px; cursor: pointer;" onclick="event.stopPropagation()">↗</span>
         </div>
     </div>
-
+    
+    <div class="fab" onclick="alert('发布新笔记...')">
+        <span class="fab-icon">📝</span>
+        <span class="fab-text">发布</span>
+    </div>
+    
+    <div class="tabbar">
+        <div class="tabbar-item active" onclick="switchPage('home')">
+            <span class="tabbar-icon">🏠</span>
+            <span>首页</span>
+        </div>
+        <div class="tabbar-item" onclick="switchPage('discover')">
+            <span class="tabbar-icon">✨</span>
+            <span>发现</span>
+        </div>
+        <div class="tabbar-item" onclick="switchPage('message')">
+            <span class="tabbar-icon">✉️</span>
+            <span>消息</span>
+        </div>
+        <div class="tabbar-item" onclick="switchPage('profile')">
+            <span class="tabbar-icon">👤</span>
+            <span>我的</span>
+        </div>
+    </div>
+    
     <script>
-        function showDetail() {
-            document.getElementById('detailModal').classList.add('show');
-            document.body.style.overflow = 'hidden';
-        }
-        
-        function closeDetail() {
-            document.getElementById('detailModal').classList.remove('show');
-            document.body.style.overflow = 'auto';
-        }
-        
-        function closeIfOverlay(e) {
-            if (e.target.id === 'detailModal') {
-                closeDetail();
+        // 切换笔记/服务者视图
+        function switchView(viewName) {
+            document.getElementById('notesView').style.display = (viewName === 'notes' ? 'block' : 'none');
+            document.getElementById('providersView').style.display = (viewName === 'providers' ? 'block' : 'none');
+            
+            document.getElementById('notesTabs').style.display = (viewName === 'notes' ? 'flex' : 'none');
+            document.getElementById('providersTabs').style.display = (viewName === 'providers' ? 'flex' : 'none');
+            
+            document.querySelectorAll('.view-option').forEach(option => option.classList.remove('active'));
+            document.querySelector(`.view-option[onclick="switchView('${viewName}')"]`).classList.add('active');
+            
+            // 确保切换到服务者视图时，'综合推荐' Tab 保持激活状态
+            if (viewName === 'providers') {
+                const comprehensiveTab = document.querySelector('#providersTabs .nav-tab');
+                if (comprehensiveTab) {
+                    comprehensiveTab.click(); // 模拟点击第一个Tab
+                }
             }
         }
-        
-        function toggleLike(btn) {
-            btn.classList.toggle('active');
-            const icon = btn.querySelector('.detail-action-icon');
-            icon.textContent = btn.classList.contains('active') ? '❤️' : '♡';
-        }
-        
-        function switchView(view) {
-            document.querySelectorAll('.view-option').forEach(opt => opt.classList.remove('active'));
+
+        // 切换首页笔记子Tab (推荐/关注/附近/热门)
+        function switchHomeTab(tabName) {
+            document.querySelectorAll('#notesTabs .nav-tab').forEach(tab => tab.classList.remove('active'));
             event.target.classList.add('active');
             
-            if (view === 'notes') {
-                document.getElementById('notesView').style.display = 'block';
-                document.getElementById('providersView').style.display = 'none';
-                document.getElementById('notesTabs').style.display = 'flex';
-                document.getElementById('providersTabs').style.display = 'none';
-            } else {
-                document.getElementById('notesView').style.display = 'none';
-                document.getElementById('providersView').style.display = 'block';
-                document.getElementById('notesTabs').style.display = 'none';
-                document.getElementById('providersTabs').style.display = 'flex';
-            }
+            document.querySelectorAll('#notesView .tab-content').forEach(content => content.classList.remove('active'));
+            document.getElementById(tabName).classList.add('active');
         }
-        
+
+        // 切换首页服务者子Tab (综合/距离/好评/订单)
         function switchProviderTab(tabName) {
             document.querySelectorAll('#providersTabs .nav-tab').forEach(tab => tab.classList.remove('active'));
             event.target.classList.add('active');
@@ -1677,7 +1464,8 @@
             document.querySelectorAll('#providersView .tab-content').forEach(content => content.classList.remove('active'));
             document.getElementById(tabName + '-tab').classList.add('active');
         }
-        
+
+        // 切换底部主页
         function switchPage(page) {
             document.querySelectorAll('.page-content').forEach(p => p.classList.remove('active'));
             document.querySelectorAll('.tabbar-item').forEach(item => item.classList.remove('active'));
@@ -1687,20 +1475,52 @@
             event.currentTarget.classList.add('active');
         }
         
-        function switchHomeTab(tabName) {
-            document.querySelectorAll('.nav-tab').forEach(tab => tab.classList.remove('active'));
-            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-            
-            event.target.classList.add('active');
-            document.getElementById(tabName).classList.add('active');
-        }
-        
+        // 切换附近页面的距离Tab
         document.querySelectorAll('.distance-tab').forEach(tab => {
             tab.addEventListener('click', () => {
-                document.querySelector('.distance-tab.active').classList.remove('active');
+                const parent = tab.parentElement;
+                parent.querySelector('.distance-tab.active').classList.remove('active');
                 tab.classList.add('active');
             });
         });
+        
+        // 新增：显示榜样人物故事页面
+        function showRoleModelPage() {
+            document.getElementById('roleModelPage').classList.add('active');
+            // 隐藏主页内容和底部导航栏
+            document.getElementById('homePage').classList.remove('active');
+            document.querySelector('.tabbar').style.display = 'none';
+            document.querySelector('.fab').style.display = 'none';
+        }
+
+        // 新增：从榜样人物故事页面返回
+        function goBackFromRoleModel() {
+            document.getElementById('roleModelPage').classList.remove('active');
+            // 显示主页内容和底部导航栏
+            document.getElementById('homePage').classList.add('active');
+            document.querySelector('.tabbar').style.display = 'flex';
+            document.querySelector('.fab').style.display = 'flex';
+        }
+        
+        // 详情弹窗控制
+        function showDetail() {
+            document.getElementById('detailModal').classList.add('show');
+            // 阻止背景滚动
+            document.body.style.overflow = 'hidden';
+            // 如果是从榜样页面点击进入，则先隐藏榜样页面（防止双层遮罩影响体验）
+            document.getElementById('roleModelPage').classList.remove('active');
+        }
+
+        function closeDetail() {
+            document.getElementById('detailModal').classList.remove('show');
+            // 恢复背景滚动
+            document.body.style.overflow = 'auto';
+            // 如果当前在主页（homePage），则显示fab和tabbar
+            if (document.getElementById('homePage').classList.contains('active')) {
+                 document.querySelector('.tabbar').style.display = 'flex';
+                 document.querySelector('.fab').style.display = 'flex';
+            }
+        }
     </script>
 </body>
-</html>                
+</html>
