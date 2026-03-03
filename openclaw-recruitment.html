@@ -1,1 +1,1099 @@
-
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>好慷数字员工大赛2026 - 招募令</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;700;900&family=Rajdhani:wght@600;700&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --primary: #00ffff;
+            --secondary: #ff00ff;
+            --accent: #00ff9d;
+            --dark: #0a0a0a;
+            --darker: #050505;
+            --text: #ffffff;
+        }
+        
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background: var(--dark);
+            color: var(--text);
+            overflow: hidden;
+            height: 100vh;
+        }
+        
+        /* 全屏幻灯片容器 */
+        .slides-container {
+            width: 100%;
+            height: 100vh;
+            position: relative;
+            perspective: 1500px;
+        }
+        
+        /* 单个幻灯片 */
+        .slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: none;
+            background: radial-gradient(ellipse at center, rgba(0, 255, 255, 0.1) 0%, transparent 70%),
+                        linear-gradient(135deg, #0a0a0a 0%, #1a0a1a 100%);
+        }
+        
+        .slide.active {
+            opacity: 1;
+            visibility: visible;
+            z-index: 10;
+        }
+        
+        /* 动画效果类 */
+        .slide.slide-in-right {
+            animation: slideInRight 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+        }
+        
+        .slide.slide-in-left {
+            animation: slideInLeft 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+        }
+        
+        .slide.slide-out-left {
+            animation: slideOutLeft 0.8s cubic-bezier(0.55, 0.085, 0.68, 0.53) forwards;
+        }
+        
+        .slide.slide-out-right {
+            animation: slideOutRight 0.8s cubic-bezier(0.55, 0.085, 0.68, 0.53) forwards;
+        }
+        
+        .slide.zoom-in {
+            animation: zoomIn 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+        }
+        
+        .slide.zoom-out {
+            animation: zoomOut 0.8s cubic-bezier(0.55, 0.085, 0.68, 0.53) forwards;
+        }
+        
+        .slide.flip-in {
+            animation: flipIn 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+        }
+        
+        .slide.flip-out {
+            animation: flipOut 0.8s cubic-bezier(0.55, 0.085, 0.68, 0.53) forwards;
+        }
+        
+        @keyframes slideInRight {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        @keyframes slideInLeft {
+            from { transform: translateX(-100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        @keyframes slideOutLeft {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(-100%); opacity: 0; }
+        }
+        
+        @keyframes slideOutRight {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(100%); opacity: 0; }
+        }
+        
+        @keyframes zoomIn {
+            from { transform: scale(0.5); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+        
+        @keyframes zoomOut {
+            from { transform: scale(1); opacity: 1; }
+            to { transform: scale(0.5); opacity: 0; }
+        }
+        
+        @keyframes flipIn {
+            from { transform: rotateY(-90deg); opacity: 0; }
+            to { transform: rotateY(0); opacity: 1; }
+        }
+        
+        @keyframes flipOut {
+            from { transform: rotateY(0); opacity: 1; }
+            to { transform: rotateY(90deg); opacity: 0; }
+        }
+        
+        /* 幻灯片内容容器 */
+        .slide-content {
+            max-width: 1200px;
+            width: 90%;
+            position: relative;
+            z-index: 2;
+        }
+        
+        /* 粒子背景 */
+        .particles-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: 0;
+        }
+        
+        .particle {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: var(--primary);
+            border-radius: 50%;
+            opacity: 0.3;
+        }
+        
+        /* 网格背景 */
+        .grid-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(0, 255, 255, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 255, 255, 0.05) 1px, transparent 1px);
+            background-size: 100px 100px;
+            animation: gridMove 20s linear infinite;
+            z-index: 0;
+        }
+        
+        @keyframes gridMove {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(100px, 100px); }
+        }
+        
+        /* 扫描线效果 */
+        .scanline {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--primary), transparent);
+            animation: scan 3s linear infinite;
+            z-index: 1;
+            opacity: 0.5;
+        }
+        
+        @keyframes scan {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(100vh); }
+        }
+        
+        /* 第一页 - 封面 */
+        .slide-1 .main-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: clamp(3rem, 10vw, 8rem);
+            font-weight: 900;
+            text-align: center;
+            background: linear-gradient(135deg, var(--primary), var(--secondary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 30px;
+            text-transform: uppercase;
+            letter-spacing: 5px;
+            animation: titleGlow 3s ease-in-out infinite;
+            text-shadow: 0 0 80px rgba(0, 255, 255, 0.5);
+        }
+        
+        @keyframes titleGlow {
+            0%, 100% { filter: brightness(1) drop-shadow(0 0 20px rgba(0, 255, 255, 0.5)); }
+            50% { filter: brightness(1.3) drop-shadow(0 0 40px rgba(0, 255, 255, 0.8)); }
+        }
+        
+        .slide-1 .subtitle {
+            text-align: center;
+            font-size: clamp(1.5rem, 4vw, 3rem);
+            font-weight: 300;
+            color: var(--primary);
+            margin-bottom: 50px;
+            letter-spacing: 3px;
+        }
+        
+        .slide-1 .description {
+            text-align: center;
+            font-size: clamp(1rem, 2vw, 1.5rem);
+            line-height: 2;
+            max-width: 800px;
+            margin: 0 auto;
+            opacity: 0.9;
+        }
+        
+        /* 第二页 - 核心卖点 */
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 40px;
+            margin-top: 60px;
+        }
+        
+        .feature-card {
+            background: rgba(0, 255, 255, 0.03);
+            border: 2px solid rgba(0, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 40px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            backdrop-filter: blur(10px);
+        }
+        
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 255, 255, 0.1), transparent);
+            transition: left 0.6s ease;
+        }
+        
+        .feature-card:hover::before {
+            left: 100%;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            border-color: var(--primary);
+            box-shadow: 0 20px 60px rgba(0, 255, 255, 0.3);
+        }
+        
+        .feature-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            display: block;
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+        
+        .feature-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 15px;
+            font-family: 'Rajdhani', sans-serif;
+        }
+        
+        .feature-text {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            opacity: 0.9;
+        }
+        
+        /* 通用标题样式 */
+        .section-title {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: clamp(2.5rem, 6vw, 5rem);
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 60px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            position: relative;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+        }
+        
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 200px;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, var(--primary), transparent);
+        }
+        
+        /* 时间轴样式 */
+        .timeline {
+            position: relative;
+            max-width: 900px;
+            margin: 60px auto 0;
+        }
+        
+        .timeline-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 50px;
+            position: relative;
+            opacity: 0;
+            transform: translateX(-50px);
+        }
+        
+        .slide.active .timeline-item:nth-child(1) {
+            animation: slideInItem 0.6s ease-out 0.3s forwards;
+        }
+        
+        .slide.active .timeline-item:nth-child(2) {
+            animation: slideInItem 0.6s ease-out 0.5s forwards;
+        }
+        
+        .slide.active .timeline-item:nth-child(3) {
+            animation: slideInItem 0.6s ease-out 0.7s forwards;
+        }
+        
+        .slide.active .timeline-item:nth-child(4) {
+            animation: slideInItem 0.6s ease-out 0.9s forwards;
+        }
+        
+        @keyframes slideInItem {
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        .timeline-dot {
+            width: 40px;
+            height: 40px;
+            background: var(--primary);
+            border-radius: 50%;
+            margin-right: 30px;
+            flex-shrink: 0;
+            box-shadow: 0 0 30px var(--primary);
+            animation: pulse 2s ease-in-out infinite;
+            position: relative;
+        }
+        
+        .timeline-dot::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 30px var(--primary); }
+            50% { transform: scale(1.2); box-shadow: 0 0 50px var(--primary); }
+        }
+        
+        .timeline-content {
+            flex: 1;
+            background: rgba(0, 255, 255, 0.05);
+            border: 2px solid rgba(0, 255, 255, 0.2);
+            border-radius: 15px;
+            padding: 30px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .timeline-date {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+        
+        .timeline-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 10px;
+        }
+        
+        .timeline-text {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            line-height: 1.6;
+        }
+        
+        /* 信息卡片 */
+        .info-cards {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 40px;
+            margin-top: 60px;
+            max-width: 900px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .info-card {
+            background: rgba(255, 0, 255, 0.05);
+            border: 2px solid rgba(255, 0, 255, 0.3);
+            border-radius: 20px;
+            padding: 50px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s ease;
+        }
+        
+        .info-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 0, 255, 0.1), transparent 50%);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+        
+        .info-card:hover {
+            transform: scale(1.05);
+            border-color: var(--secondary);
+            box-shadow: 0 20px 60px rgba(255, 0, 255, 0.4);
+        }
+        
+        .info-card:hover::before {
+            opacity: 1;
+        }
+        
+        .info-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+        }
+        
+        .info-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--secondary);
+            margin-bottom: 15px;
+            font-family: 'Rajdhani', sans-serif;
+        }
+        
+        .info-text {
+            font-size: 1.2rem;
+            line-height: 1.8;
+        }
+        
+        /* 最终页 CTA */
+        .cta-content {
+            text-align: center;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        .cta-text {
+            font-size: clamp(1.5rem, 3vw, 2.5rem);
+            line-height: 2;
+            margin-bottom: 60px;
+            font-weight: 300;
+        }
+        
+        .highlight {
+            color: var(--primary);
+            font-weight: 700;
+        }
+        
+        .accent {
+            color: var(--accent);
+            font-weight: 700;
+        }
+        
+        .cta-button {
+            display: inline-block;
+            padding: 30px 80px;
+            font-size: 2rem;
+            font-weight: 700;
+            font-family: 'Rajdhani', sans-serif;
+            color: var(--dark);
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            border: none;
+            border-radius: 50px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s ease;
+            box-shadow: 0 0 50px rgba(0, 255, 255, 0.5);
+            animation: buttonPulse 2s ease-in-out infinite;
+        }
+        
+        @keyframes buttonPulse {
+            0%, 100% { box-shadow: 0 0 50px rgba(0, 255, 255, 0.5); }
+            50% { box-shadow: 0 0 80px rgba(0, 255, 255, 0.8); }
+        }
+        
+        .cta-button::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            transition: width 0.6s ease, height 0.6s ease;
+        }
+        
+        .cta-button:hover::before {
+            width: 300%;
+            height: 300%;
+        }
+        
+        .cta-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 100px rgba(0, 255, 255, 0.8);
+        }
+        
+        .cta-footer {
+            margin-top: 40px;
+            font-size: 1.5rem;
+            color: var(--accent);
+            font-weight: 700;
+        }
+        
+        /* 导航控制 */
+        .nav-controls {
+            position: fixed;
+            bottom: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 15px;
+            z-index: 100;
+        }
+        
+        .nav-dot {
+            width: 15px;
+            height: 15px;
+            background: rgba(0, 255, 255, 0.3);
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        
+        .nav-dot:hover {
+            background: rgba(0, 255, 255, 0.6);
+            transform: scale(1.3);
+        }
+        
+        .nav-dot.active {
+            background: var(--primary);
+            border-color: white;
+            box-shadow: 0 0 20px var(--primary);
+            transform: scale(1.4);
+        }
+        
+        .nav-arrows {
+            position: fixed;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 100;
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            padding: 0 30px;
+            pointer-events: none;
+        }
+        
+        .nav-arrow {
+            width: 60px;
+            height: 60px;
+            background: rgba(0, 255, 255, 0.2);
+            border: 2px solid var(--primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            pointer-events: all;
+            backdrop-filter: blur(10px);
+            font-size: 1.5rem;
+            color: var(--primary);
+        }
+        
+        .nav-arrow:hover {
+            background: rgba(0, 255, 255, 0.4);
+            transform: scale(1.1);
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.5);
+        }
+        
+        /* 页码指示器 */
+        .slide-number {
+            position: fixed;
+            top: 30px;
+            right: 30px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.5rem;
+            color: var(--primary);
+            z-index: 100;
+            opacity: 0.7;
+        }
+        
+        /* 响应式 */
+        @media (max-width: 768px) {
+            .feature-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .info-cards {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .nav-arrows {
+                padding: 0 15px;
+            }
+            
+            .nav-arrow {
+                width: 50px;
+                height: 50px;
+                font-size: 1.2rem;
+            }
+            
+            .cta-button {
+                padding: 20px 50px;
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 幻灯片容器 -->
+    <div class="slides-container">
+        <!-- 第1页：封面 -->
+        <div class="slide active slide-1">
+            <div class="grid-bg"></div>
+            <div class="scanline"></div>
+            <div class="particles-bg" id="particles1"></div>
+            <div class="slide-content">
+                <h1 class="main-title">造个打工人</h1>
+                <div class="subtitle">好慷数字员工大赛 2026</div>
+                <p class="description">
+                    8个月时间，造一个数字员工<br>
+                    真能聊天、真能干活、真能解决问题<br>
+                    10月24日，全公司投票，选出<span class="highlight">「0号员工」</span>
+                </p>
+            </div>
+        </div>
+        
+        <!-- 第2页：为什么参加 -->
+        <div class="slide">
+            <div class="grid-bg"></div>
+            <div class="scanline"></div>
+            <div class="particles-bg" id="particles2"></div>
+            <div class="slide-content">
+                <h2 class="section-title">为什么要参加？</h2>
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <span class="feature-icon">⚡</span>
+                        <div class="feature-title">这事儿真的酷</div>
+                        <div class="feature-text">
+                            OpenClaw + 大模型，让机器像人一样操作界面。你亲手写的代码，会变成一个真正在公司里"打工"的数字员工！
+                        </div>
+                    </div>
+                    <div class="feature-card">
+                        <span class="feature-icon">🚀</span>
+                        <div class="feature-title">你会变强</div>
+                        <div class="feature-text">
+                            8个月，4场Demo，20个人一起摸索。你会看到20种骚操作，偷师20种技术方案。从0到1造一个东西出来。
+                        </div>
+                    </div>
+                    <div class="feature-card">
+                        <span class="feature-icon">💰</span>
+                        <div class="feature-title">有钱拿</div>
+                        <div class="feature-text">
+                            总奖金池8万！冠军4万、亚军2万、季军1万。每2个月过程赛，前三名都有奖。本来就想试试AI，奖金是惊喜。
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 第3页：OpenClaw能干啥 -->
+        <div class="slide">
+            <div class="grid-bg"></div>
+            <div class="scanline"></div>
+            <div class="particles-bg" id="particles3"></div>
+            <div class="slide-content">
+                <h2 class="section-title">OpenClaw 能解决什么？</h2>
+                <div class="info-cards">
+                    <div class="info-card">
+                        <div class="info-icon">🖥️</div>
+                        <div class="info-title">老系统自动化</div>
+                        <div class="info-text">
+                            没有API的老系统？<br>
+                            OpenClaw能像人一样<br>
+                            登录、点击、复制粘贴<br>
+                            全自动搞定
+                        </div>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-icon">🔗</div>
+                        <div class="info-title">跨平台流程</div>
+                        <div class="info-text">
+                            多个系统来回切换？<br>
+                            让数字员工替你操作<br>
+                            飞书、OA、业务系统<br>
+                            一气呵成
+                        </div>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-icon">🧠</div>
+                        <div class="info-title">智能理解意图</div>
+                        <div class="info-text">
+                            配上大模型的"大脑"<br>
+                            能听懂人话、理解意图<br>
+                            拆解任务、推理执行<br>
+                            真正的AI助手
+                        </div>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-icon">⚙️</div>
+                        <div class="info-title">重复劳动终结者</div>
+                        <div class="info-text">
+                            调度、审批、数据录入<br>
+                            那些烦人的重复工作<br>
+                            全部交给数字员工<br>
+                            解放双手和大脑
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 第4页：赛程安排 -->
+        <div class="slide">
+            <div class="grid-bg"></div>
+            <div class="scanline"></div>
+            <div class="particles-bg" id="particles4"></div>
+            <div class="slide-content">
+                <h2 class="section-title">赛程安排</h2>
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-content">
+                            <div class="timeline-date">3-4月</div>
+                            <div class="timeline-title">架构之魂</div>
+                            <div class="timeline-text">把技术方案搭起来，证明它能跑通</div>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-content">
+                            <div class="timeline-date">5-6月</div>
+                            <div class="timeline-title">交互之光</div>
+                            <div class="timeline-text">让它在飞书里跟人顺畅对话，别像个机器人</div>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-content">
+                            <div class="timeline-date">7-8月</div>
+                            <div class="timeline-title">业务之剑</div>
+                            <div class="timeline-text">解决一个真实的业务痛点，真刀真枪干一场</div>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-content">
+                            <div class="timeline-date">10.24</div>
+                            <div class="timeline-title">0号员工诞生</div>
+                            <div class="timeline-text">全员试用，投票决出最终赢家！</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 第5页：谁能参加 -->
+        <div class="slide">
+            <div class="grid-bg"></div>
+            <div class="scanline"></div>
+            <div class="particles-bg" id="particles5"></div>
+            <div class="slide-content">
+                <h2 class="section-title">什么人能参加？</h2>
+                <div class="info-cards">
+                    <div class="info-card">
+                        <div class="info-icon">🎯</div>
+                        <div class="info-title">不需要会OpenClaw</div>
+                        <div class="info-text">
+                            谁都不是天生的<br>
+                            都是边学边造<br>
+                            关键是愿意折腾
+                        </div>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-icon">👥</div>
+                        <div class="info-title">欢迎所有角色</div>
+                        <div class="info-text">
+                            产品、运营、前后端<br>
+                            测试、UI统统欢迎<br>
+                            不同视角碰撞出火花
+                        </div>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-icon">⏰</div>
+                        <div class="info-title">每周几小时</div>
+                        <div class="info-text">
+                            8个月长跑<br>
+                            平均每周花几小时<br>
+                            就能完整造一个作品
+                        </div>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-icon">💻</div>
+                        <div class="info-title">Mac Mini配置</div>
+                        <div class="info-text">
+                            每人一台全新Mac Mini<br>
+                            作为专属研发底座<br>
+                            赛事期间使用
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 第6页：报名信息 -->
+        <div class="slide">
+            <div class="grid-bg"></div>
+            <div class="scanline"></div>
+            <div class="particles-bg" id="particles6"></div>
+            <div class="slide-content">
+                <h2 class="section-title">报名信息</h2>
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <span class="feature-icon">👥</span>
+                        <div class="feature-title">名额</div>
+                        <div class="feature-text">
+                            20人<br>
+                            先到先得！
+                        </div>
+                    </div>
+                    <div class="feature-card">
+                        <span class="feature-icon">💳</span>
+                        <div class="feature-title">报名费</div>
+                        <div class="feature-text">
+                            2000元<br>
+                            进奖金池，搞好了能拿回更多
+                        </div>
+                    </div>
+                    <div class="feature-card">
+                        <span class="feature-icon">📞</span>
+                        <div class="feature-title">联系方式</div>
+                        <div class="feature-text">
+                            [组织者姓名/部门]<br>
+                            截止时间：[具体日期]
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 第7页：CTA -->
+        <div class="slide">
+            <div class="grid-bg"></div>
+            <div class="scanline"></div>
+            <div class="particles-bg" id="particles7"></div>
+            <div class="slide-content">
+                <div class="cta-content">
+                    <h2 class="section-title">最后说一句</h2>
+                    <p class="cta-text">
+                        2026年，AI到底能改变什么？<br>
+                        <span class="highlight">没人知道确切答案</span><br>
+                        <span class="accent">但咱们可以亲手试试！</span>
+                    </p>
+                    <button class="cta-button">上车！</button>
+                    <p class="cta-footer">Mac Mini已经到位，就等你了 🚀</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 页码指示器 -->
+    <div class="slide-number">
+        <span id="currentSlide">1</span> / 7
+    </div>
+    
+    <!-- 导航点 -->
+    <div class="nav-controls">
+        <div class="nav-dot active" data-slide="0"></div>
+        <div class="nav-dot" data-slide="1"></div>
+        <div class="nav-dot" data-slide="2"></div>
+        <div class="nav-dot" data-slide="3"></div>
+        <div class="nav-dot" data-slide="4"></div>
+        <div class="nav-dot" data-slide="5"></div>
+        <div class="nav-dot" data-slide="6"></div>
+    </div>
+    
+    <!-- 左右箭头 -->
+    <div class="nav-arrows">
+        <div class="nav-arrow" id="prevBtn">←</div>
+        <div class="nav-arrow" id="nextBtn">→</div>
+    </div>
+    
+    <script>
+        // 初始化粒子
+        function createParticles(containerId, count = 50) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+            
+            for (let i = 0; i < count; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.top = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 5 + 's';
+                particle.style.animationDuration = (Math.random() * 10 + 10) + 's';
+                container.appendChild(particle);
+            }
+        }
+        
+        // 为每页创建粒子
+        for (let i = 1; i <= 7; i++) {
+            createParticles(`particles${i}`, 40);
+        }
+        
+        // 幻灯片切换逻辑
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const navDots = document.querySelectorAll('.nav-dot');
+        const slideNumber = document.getElementById('currentSlide');
+        const totalSlides = slides.length;
+        
+        // 转场动画类型
+        const transitions = ['slide-in-right', 'zoom-in', 'flip-in'];
+        const transitionsOut = ['slide-out-left', 'zoom-out', 'flip-out'];
+        
+        function goToSlide(index, direction = 'next') {
+            if (index < 0 || index >= totalSlides || index === currentSlide) return;
+            
+            const currentSlideEl = slides[currentSlide];
+            const nextSlideEl = slides[index];
+            
+            // 随机选择转场效果
+            const transitionIndex = Math.floor(Math.random() * transitions.length);
+            const outClass = transitionsOut[transitionIndex];
+            const inClass = transitions[transitionIndex];
+            
+            // 移除当前幻灯片
+            currentSlideEl.classList.add(outClass);
+            setTimeout(() => {
+                currentSlideEl.classList.remove('active', outClass);
+            }, 800);
+            
+            // 显示下一张幻灯片
+            setTimeout(() => {
+                nextSlideEl.classList.add('active', inClass);
+                setTimeout(() => {
+                    nextSlideEl.classList.remove(inClass);
+                }, 800);
+            }, 100);
+            
+            // 更新导航点
+            navDots[currentSlide].classList.remove('active');
+            navDots[index].classList.add('active');
+            
+            // 更新页码
+            currentSlide = index;
+            slideNumber.textContent = currentSlide + 1;
+        }
+        
+        // 下一页
+        function nextSlide() {
+            if (currentSlide < totalSlides - 1) {
+                goToSlide(currentSlide + 1, 'next');
+            }
+        }
+        
+        // 上一页
+        function prevSlide() {
+            if (currentSlide > 0) {
+                goToSlide(currentSlide - 1, 'prev');
+            }
+        }
+        
+        // 事件监听
+        document.getElementById('nextBtn').addEventListener('click', nextSlide);
+        document.getElementById('prevBtn').addEventListener('click', prevSlide);
+        
+        // 导航点点击
+        navDots.forEach(dot => {
+            dot.addEventListener('click', () => {
+                const index = parseInt(dot.getAttribute('data-slide'));
+                goToSlide(index);
+            });
+        });
+        
+        // 键盘控制
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ') {
+                e.preventDefault();
+                nextSlide();
+            } else if (e.key === 'ArrowLeft') {
+                e.preventDefault();
+                prevSlide();
+            }
+        });
+        
+        // 触摸滑动支持
+        let touchStartX = 0;
+        let touchEndX = 0;
+        
+        document.addEventListener('touchstart', (e) => {
+            touchStartX = e.changedTouches[0].screenX;
+        });
+        
+        document.addEventListener('touchend', (e) => {
+            touchEndX = e.changedTouches[0].screenX;
+            handleSwipe();
+        });
+        
+        function handleSwipe() {
+            if (touchEndX < touchStartX - 50) {
+                nextSlide();
+            }
+            if (touchEndX > touchStartX + 50) {
+                prevSlide();
+            }
+        }
+        
+        // 鼠标滚轮控制
+        let isScrolling = false;
+        document.addEventListener('wheel', (e) => {
+            if (isScrolling) return;
+            
+            isScrolling = true;
+            setTimeout(() => { isScrolling = false; }, 1000);
+            
+            if (e.deltaY > 0) {
+                nextSlide();
+            } else {
+                prevSlide();
+            }
+        }, { passive: true });
+    </script>
+</body>
+</html>
