@@ -711,6 +711,41 @@
             opacity: 0.7;
         }
         
+        /* 自动播放控制按钮 */
+        .auto-play-control {
+            position: fixed;
+            top: 30px;
+            left: 30px;
+            z-index: 100;
+        }
+        
+        .auto-play-btn {
+            width: 50px;
+            height: 50px;
+            background: rgba(0, 255, 255, 0.2);
+            border: 2px solid var(--primary);
+            border-radius: 50%;
+            color: var(--primary);
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+        }
+        
+        .auto-play-btn:hover {
+            background: rgba(0, 255, 255, 0.4);
+            transform: scale(1.1);
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.5);
+        }
+        
+        .auto-play-btn:active {
+            transform: scale(0.95);
+        }
+        
         /* 响应式 */
         @media (max-width: 768px) {
             .feature-grid {
@@ -1007,6 +1042,11 @@
         <span id="currentSlide">1</span> / 7
     </div>
     
+    <!-- 自动播放控制按钮 -->
+    <div class="auto-play-control">
+        <button class="auto-play-btn" id="autoPlayBtn" title="开始自动播放">▶</button>
+    </div>
+    
     <!-- 导航点 -->
     <div class="nav-controls">
         <div class="nav-dot active" data-slide="0"></div>
@@ -1109,6 +1149,9 @@
         document.getElementById('nextBtn').addEventListener('click', nextSlide);
         document.getElementById('prevBtn').addEventListener('click', prevSlide);
         
+        // 自动播放按钮点击
+        document.getElementById('autoPlayBtn').addEventListener('click', toggleAutoPlay);
+        
         // 导航点点击
         navDots.forEach(dot => {
             dot.addEventListener('click', () => {
@@ -1165,6 +1208,83 @@
             }
         }, { passive: true });
         
+        // 自动播放功能
+        let autoPlayInterval = null;
+        let isAutoPlaying = false;
+        const AUTO_PLAY_DELAY = 5000; // 每页停留5秒，可以调整
+        
+        function startAutoPlay() {
+            if (isAutoPlaying) return;
+            isAutoPlaying = true;
+            
+            autoPlayInterval = setInterval(() => {
+                if (currentSlide < totalSlides - 1) {
+                    nextSlide();
+                } else {
+                    // 到最后一页后停止自动播放
+                    stopAutoPlay();
+                }
+            }, AUTO_PLAY_DELAY);
+            
+            // 更新播放按钮状态
+            updatePlayButton();
+        }
+        
+        function stopAutoPlay() {
+            if (!isAutoPlaying) return;
+            isAutoPlaying = false;
+            
+            if (autoPlayInterval) {
+                clearInterval(autoPlayInterval);
+                autoPlayInterval = null;
+            }
+            
+            // 更新播放按钮状态
+            updatePlayButton();
+        }
+        
+        function toggleAutoPlay() {
+            if (isAutoPlaying) {
+                stopAutoPlay();
+            } else {
+                startAutoPlay();
+            }
+        }
+        
+        function updatePlayButton() {
+            const playBtn = document.getElementById('autoPlayBtn');
+            if (isAutoPlaying) {
+                playBtn.innerHTML = '⏸';
+                playBtn.title = '暂停自动播放';
+            } else {
+                playBtn.innerHTML = '▶';
+                playBtn.title = '开始自动播放';
+            }
+        }
+        
+        // 用户交互时暂停自动播放
+        document.getElementById('nextBtn').addEventListener('click', () => {
+            stopAutoPlay();
+        });
+        
+        document.getElementById('prevBtn').addEventListener('click', () => {
+            stopAutoPlay();
+        });
+        
+        navDots.forEach(dot => {
+            dot.addEventListener('click', () => {
+                stopAutoPlay();
+            });
+        });
+        
+        // 键盘控制时暂停自动播放
+        const originalKeyHandler = document.onkeydown;
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'ArrowLeft') {
+                stopAutoPlay();
+            }
+        });
+        
         // 视频开场控制
         const videoIntro = document.getElementById('videoIntro');
         const introVideo = document.getElementById('introVideo');
@@ -1175,6 +1295,8 @@
             // 视频隐藏后开始播放背景音效等
             setTimeout(() => {
                 videoIntro.style.display = 'none';
+                // 视频结束后自动开始播放PPT
+                startAutoPlay();
             }, 800);
         }
         
@@ -1182,12 +1304,17 @@
         introVideo.addEventListener('ended', hideVideoIntro);
         
         // 点击跳过按钮
-        skipButton.addEventListener('click', hideVideoIntro);
+        skipButton.addEventListener('click', () => {
+            hideVideoIntro();
+            // 手动跳过不自动播放
+            stopAutoPlay();
+        });
         
         // 按ESC键跳过
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape' && !videoIntro.classList.contains('hidden')) {
                 hideVideoIntro();
+                stopAutoPlay();
             }
         });
         
@@ -1195,6 +1322,7 @@
         introVideo.addEventListener('error', () => {
             console.log('视频加载失败，自动跳过');
             hideVideoIntro();
+            stopAutoPlay();
         });
     </script>
 </body>
